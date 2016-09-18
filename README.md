@@ -33,7 +33,7 @@ A trial HCP account is needed. On this account, a trial MDC database must have b
 
 ### HANA artifacts
 1. Create a new package named `spet.diploma`.
-2. Import all the artifacts from `/hana/spet/diploma` into this package (zip the folder and import it via the Web-based Workbench).
+2. Import all the artifacts from [hana/spet/diploma](./hana/spet/diploma) into this package (zip the folder and import it via the Web-based Workbench).
 3. Activate all files in the following order:
   * `data::SPET_DIPLOMA.hdbschema`
   * `data::ctxCore.hdbdd`, `data::ctxRaw.hdbdd` and `data::ctxPal.hdbdd`
@@ -51,35 +51,35 @@ A trial HCP account is needed. On this account, a trial MDC database must have b
 9. Adjust the `library::constants.xsjslib` file by changing the GMail address.
 
 ### Java Email service
-1. Import the `/mail` project into Eclipse.
+1. Import the [mail](./mail/) project into Eclipse.
 2. Adjust the `/mail/src/diploma/services/mail/Configuration.json` file and add your own GMail address.
 3. Add the Web Tomcat 7 HCP runtime to the project (see <https://tools.hana.ondemand.com/#cloud>).
 4. Deploy the application to your HCP.
-5. Import the following destinations to the HCP account: `/dest/INET_HTTP_DIPLOMA_J0I` and `/dest/INET_HTTP_GOOGLE_MAPS_API`. 
+5. Import the following destinations to the HCP account: [INET_HTTP_DIPLOMA_J0I](./dest/INET_HTTP_DIPLOMA_J0I.txt) and [INET_HTTP_GOOGLE_MAPS_API](./dest/INET_HTTP_GOOGLE_MAPS_API.txt). 
 6. Adjust the details (the URL) in the `INET_HTTP_DIPLOMA_J0I` to point towards your HANA MDC instance.
-7. Import the `/dest/MAIL_DIPLOMA_GMAIL` destination into the destinations of the Java application and adjust the GMail address and password.
+7. Import the [MAIL_DIPLOMA_GMAIL](./dest/MAIL_DIPLOMA_GMAIL.txt) destination into the destinations of the Java application and adjust the GMail address and password.
 8. Import the certificate from the HANA instance into the trust store of your HCP account.
 
 ### UI5 Applications
-1. Import each of the folders in the `/ui` folder as a HTML5 application, except for the `/ui/launchpad/` one (you can zip each folder and simply import each of them directy in the HCP Cockpit). 
+1. Import each of the folders in the [ui](./ui/) folder as a HTML5 application, except for the [ui/launchpad](./ui/launchpad/) one (you can zip each folder and simply import each of them directy in the HCP Cockpit). 
 2. Activate all of the created HTML5 applications.
-3. Make a zip archive out of the `/launchpad` folder.
+3. Make a zip archive out of the [launchpad](./ui/launchpad/) folder.
 4. Open the Fiori Launchpad (it's under Substribed Applications in the HCP account) --> Manage Site --> Services and Tools --> Transport Manager --> Import --> Select the `launchpad.zip` created previously.
 
 ### Devices
 #### Arduino
-1. The `/arduino/device.ino` might need to be adjusted to work with the hardware that you have. It was tested with [Arduino Uno](https://www.arduino.cc/en/Main/ArduinoBoardUno), [GPS-MOD Module](https://www.robofun.ro/mod-gps) and a serially commanded bluetooth module (like this [one](http://www.ebay.de/itm/like/401051947373?lpid=106&chn=ps&ul_noapp=true)). 
+1. The [arduino/device.ino](./arduino/device.ino) might need to be adjusted to work with the hardware that you have. It was tested with [Arduino Uno](https://www.arduino.cc/en/Main/ArduinoBoardUno), [GPS-MOD Module](https://www.robofun.ro/mod-gps) and a serially commanded bluetooth module (like this [one](http://www.ebay.de/itm/like/401051947373?lpid=106&chn=ps&ul_noapp=true)). 
 2. The source file must be uplaoded to the arduino board and must be paired with the laptop. On the laptop, the bluetooth module input must be [mapped to a COM port](http://www.verizonwireless.com/support/knowledge-base-20605/). You can test then the connection by listening to the port with a software such as HyperTerminal. 
-3. Open up the `/proxy/` C# project in Visual Studio.
-4. Add the OpenUI5 runtime resources to the `www/resources/` folder. You can download them [here](http://openui5.org/download.html);
+3. Open up the [proxy](./proxy/) C# project in Visual Studio.
+4. Add the OpenUI5 runtime resources to the `www/resources/` folder. You can download them [here](http://openui5.org/download.html).
 5. Adjust the file `Model.cs` to reflect the path to you HANA MDC (line 61).
 6. Run the C# app and instruct it to listen to the mapped COM port.
 
 #### Android
-The `diploma.android.client.SimpleHttpClient` class must be adjusted with the URL to the HANA MDC. Afterwards, the application can be directly run on any Android phone (with high enough API level).
+The sources for the Andoid application are in the [android](./android/) folder. Only the `diploma.android.client.SimpleHttpClient` class must be adjusted with the URL to the HANA MDC. Afterwards, the application can be directly run on any Android phone (with high enough API level).
 
 ## Acknowledgements
-The project uses the following open-source libraries (licenses in the `/license/` folder):
+The project uses the following open-source libraries (licenses in the [licenses](./licenses/) folder):
 + OpenUI5 https://github.com/SAP/openui5/
 + Grammatica https://github.com/cederberg/grammatica
 + Jackson https://github.com/FasterXML/jackson
