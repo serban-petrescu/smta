@@ -1,0 +1,44 @@
+<mvc:View controllerName="diploma.admin.sensor.controller.Master" xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc"
+	xmlns:semantic="sap.m.semantic" xmlns="sap.m">
+	<semantic:MasterPage id="page" navButtonPress="onNavBack" showNavButton="true" title="{masterView>/title}">
+		<semantic:subHeader>
+			<Bar id="headerBar">
+				<contentMiddle>
+					<SearchField id="searchField" search="onSearch" showRefreshButton="{= !${device>/support/touch} }" tooltip="{i18n>masterSearchTooltip}"
+						width="100%"></SearchField>
+				</contentMiddle>
+			</Bar>
+		</semantic:subHeader>
+		<semantic:content>
+			<PullToRefresh id="pullToRefresh" refresh="onRefresh" visible="{device>/support/touch}"/>
+			<!-- For client side filtering add this to the items attribute:  parameters: {operationMode: 'Client'}}" -->
+			<List busyIndicatorDelay="{masterView>/delay}" growing="true" growingScrollToLoad="true" growingThreshold="10" id="list"
+				items="{ path: '/SensorTypes', sorter: { path: 'name', descending: false }, groupHeaderFactory: '.createGroupHeader' }"
+				mode="{= ${device>/system/phone} ? 'None' : 'SingleSelectMaster'}" noDataText="{masterView>/noDataText}" selectionChange="onSelectionChange"
+				updateFinished="onUpdateFinished">
+				<infoToolbar>
+					<Toolbar active="true" id="filterBar" press="onOpenViewSettings" visible="{masterView>/isFilterBarVisible}">
+						<Title id="filterBarLabel" text="{masterView>/filterBarLabel}"/>
+					</Toolbar>
+				</infoToolbar>
+				<items>
+					<ObjectListItem press="onSelectionChange" title="{name}" type="{= ${device>/system/phone} ? 'Active' : 'Inactive'}"></ObjectListItem>
+				</items>
+			</List>
+		</semantic:content>
+		<semantic:dependents>
+    	    <core:Fragment fragmentName="diploma.admin.sensor.view.MeasureManagement" type="XML" />
+		</semantic:dependents>
+		<semantic:customFooterContent>
+			<Button icon="sap-icon://measuring-point" 
+			    text="{i18n>btnMeasures}"
+			    tooltip="{i18n>btnMeasuresTooltip}" 
+			    press="openMeasureDialog"/>
+			<Button icon="sap-icon://create" 
+			    text="{i18n>btnCreate}" 
+			    tooltip="{i18n>btnCreateTooltip}" 
+			    visible="{= !${global>/edit} }" 
+			    press="onCreate"/>
+		</semantic:customFooterContent>
+	</semantic:MasterPage>
+</mvc:View>

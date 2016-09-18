@@ -1,0 +1,107 @@
+<mvc:View controllerName="diploma.admin.sensor.controller.Detail" 
+    xmlns:footerbar="sap.ushell.ui.footerbar" 
+    xmlns:mvc="core.mvc"
+	xmlns:semantic="sap.m.semantic" 
+	xmlns="sap.m" 
+	xmlns:core="sap.ui.core" 
+	xmlns:form="sap.ui.layout.form"
+	xmlns:l="sap.ui.layout">
+	<semantic:DetailPage busy="{detailView>/busy}" busyIndicatorDelay="{detailView>/delay}" id="page" navButtonPress="onNavBack"
+		showNavButton="{device>/system/phone}" title="{i18n>detailTitle}">
+		<semantic:content>
+			<ObjectHeader id="objectHeader" title="{name}" visible="{= !${global>/isNew}}"/>
+				<form:SimpleForm editable="true" 
+				    layout="ResponsiveGridLayout" 
+					class="editableForm" maxContainerCols="2"
+					title="{i18n&gt;sensorHeader}" 
+					labelSpanL="3" labelSpanM="3" 
+					emptySpanL="2" emptySpanM="2" 
+					columnsL="1" columnsM="1"
+					visible="{global>/edit}">
+				    
+					<Label text="{i18n>sensorName}"/>
+					<Input value="{name}" width="100%" id="sensorName"/>
+					    
+					<Label text="{i18n>sensorDesc}" />
+					<Input value="{description}" width="100%" id="sensorDesc"/>
+					    
+					<Label text="{i18n>sensorVirtual}" />
+					<CheckBox id="sensorVirtual" 
+					    selected="{= ${virtual} === 1 }" 
+					    width="100%" 
+					    select="onVirtualChanged"/>
+					    
+					<Label text="{i18n>measure}" />
+					<Select id="sensorMeasure" 
+					    items="{path: '/Measures', sorter: { path: 'name', descending: false } }" 
+						selectedKey="{measure}" 
+						width="100%">
+						<core:Item key="{id}" text="{name}"/>
+					</Select>
+					
+					<Label text="{i18n>sensorConv}" visible="{= !${virtual} }" id="lblConv"/>
+					<Input id="sensorConv" 
+					    value="{= ${virtual} ? '' : ${conversion}}"
+				        width="100%" 
+				        visible="{= !${virtual} }" 
+						valueHelpRequest="openConvertDialog" 
+						showValueHelp="true" 
+						valueHelpOnly="true"/>
+					    
+					<Label id="lblExpr" text="{i18n>sensorExpr}" visible="{= !${virtual} === false }"/>
+					<Input id="sensorExpr" 
+					    value="{= ${virtual} ? ${conversion} : ''}" 
+					    width="100%" 
+						visible="{= !${virtual} === false }" 
+						valueHelpRequest="openExpressionDialog" 
+						showValueHelp="true" 
+						valueHelpOnly="true" />
+					    
+				</form:SimpleForm>
+			
+				<form:SimpleForm 
+				    layout="ResponsiveGridLayout" 
+					class="editableForm" maxContainerCols="2"
+					title="{i18n&gt;sensorHeader}" 
+					labelSpanL="3" labelSpanM="3" 
+					emptySpanL="2" emptySpanM="2" 
+					columnsL="1" columnsM="1"
+					visible="{= !${global>/edit} }">
+				    
+					<Label text="{i18n>sensorName}"/>
+					<Text text="{name}"/>
+					    
+					<Label text="{i18n>sensorDesc}" />
+					<Text text="{description}"/>
+					    
+					<Label text="{i18n>sensorVirtual}" />
+					<Text text="{= !${virtual} ? ${i18n>no} : ${i18n>yes} }"/>
+					    
+					<Label text="{i18n>measure}" />
+					<Text  text="{
+						parts: [{path: 'i18n>txtSensorMeasureText'}, {path: 'Measure/name'}, {path: 'Measure/unit'}], 
+						formatter: '.formatter.measureText'
+					}"/>
+					    
+					<Label text="{i18n>sensorConv}" visible="{= !${virtual} }"/>
+					<Text text="{= ${conversion} || ${i18n>none} }" visible="{= !${virtual} }"/>
+					    
+					<Label text="{i18n>sensorExpr}" visible="{= !${virtual} === false }"/>
+					<Text text="{= ${conversion} || ${i18n>none} }" visible="{= !${virtual} === false }" />
+					    
+				</form:SimpleForm>
+		</semantic:content>
+		
+		<semantic:dependents>
+    	    <core:Fragment fragmentName="diploma.admin.sensor.view.ExpressionDialog" type="XML" />
+    	    <core:Fragment fragmentName="diploma.admin.sensor.view.ConversionDialog" type="XML" />
+		</semantic:dependents>
+		
+		<semantic:customFooterContent>
+			<OverflowToolbarButton visible="{= !${global>/edit} }" icon="sap-icon://delete" text="{i18n>btnRemove}" press="onDelete"/>
+			<OverflowToolbarButton visible="{= !${global>/edit} }" icon="sap-icon://edit" text="{i18n>btnEdit}" press="onEdit"/>
+			<OverflowToolbarButton visible="{global>/edit}" icon="sap-icon://decline" text="{i18n>btnCancel}" press="onCancel" />
+			<OverflowToolbarButton visible="{global>/edit}" icon="sap-icon://save" text="{i18n>btnSave}" press="onSave" />
+		</semantic:customFooterContent>
+	</semantic:DetailPage>
+</mvc:View>

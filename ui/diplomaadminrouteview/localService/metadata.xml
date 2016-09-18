@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<edmx:Edmx Version="1.0"
+    xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx">
+    <edmx:DataServices
+        xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" m:DataServiceVersion="2.0">
+        <Schema Namespace="msg.hcm.taxoenginetmp.petrescs.diploma.services"
+            xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices"
+            xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"
+            xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+            <EntityType Name="TransportsType">
+                <Key>
+                    <PropertyRef Name="id" />
+                </Key>
+                <Property Name="id" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="description" Type="Edm.String" MaxLength="128" />
+                <Property Name="tFrom" Type="Edm.String" MaxLength="32" />
+                <Property Name="tTo" Type="Edm.String" MaxLength="32" />
+                <Property Name="tWhen" Type="Edm.DateTime" />
+                <Property Name="contact" Type="Edm.String" MaxLength="64" />
+                <NavigationProperty Name="Devices" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.TransportToDevicesType" FromRole="TransportsPrincipal" ToRole="DevicesDependent" />
+                <NavigationProperty Name="Readings" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.TransportToReadingsType" FromRole="TransportsPrincipal" ToRole="ReadingsDependent" />
+                <NavigationProperty Name="ToLocation" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationToTransportToType" FromRole="TransportsDependent" ToRole="LocationsPrincipal" />
+                <NavigationProperty Name="FromLocation" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationToTransportFromType" FromRole="TransportsDependent" ToRole="LocationsPrincipal" />
+                <NavigationProperty Name="Limits" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.TransportToLimitsType" FromRole="TransportsPrincipal" ToRole="LimitsDependent" />
+            </EntityType>
+            <EntityType Name="LimitsType">
+                <Key>
+                    <PropertyRef Name="transport" />
+                    <PropertyRef Name="measure" />
+                </Key>
+                <Property Name="transport" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="measure" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="lowerBound" Type="Edm.Decimal" Precision="32" Scale="16" />
+                <Property Name="upperBound" Type="Edm.Decimal" Precision="32" Scale="16" />
+                <Property Name="notified" Type="Edm.Byte" />
+                <NavigationProperty Name="Measure" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.MeasureToLimitsType" FromRole="LimitsDependent" ToRole="MeasuresPrincipal" />
+            </EntityType>
+            <EntityType Name="DevicesType">
+                <Key>
+                    <PropertyRef Name="id" />
+                </Key>
+                <Property Name="id" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="name" Type="Edm.String" MaxLength="64" />
+                <Property Name="description" Type="Edm.String" MaxLength="128" />
+                <Property Name="active" Type="Edm.Byte" />
+                <Property Name="transport" Type="Edm.String" MaxLength="32" />
+                <NavigationProperty Name="Sensors" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.DeviceToSensorsType" FromRole="DevicesPrincipal" ToRole="DeviceSensorsDependent" />
+                <NavigationProperty Name="Transport" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.TransportToDevicesType" FromRole="DevicesDependent" ToRole="TransportsPrincipal" />
+                <NavigationProperty Name="Values" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.DeviceToValuesType" FromRole="DevicesPrincipal" ToRole="ValuesDependent" />
+            </EntityType>
+            <EntityType Name="DeviceSensorsType">
+                <Key>
+                    <PropertyRef Name="device" />
+                    <PropertyRef Name="number" />
+                </Key>
+                <Property Name="device" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="number" Type="Edm.Int32" Nullable="false" />
+                <Property Name="sensorType" Type="Edm.String" MaxLength="32" />
+                <NavigationProperty Name="Type" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.TypeToSensorsType" FromRole="DeviceSensorsDependent" ToRole="SensorTypesPrincipal" />
+            </EntityType>
+            <EntityType Name="SensorTypesType">
+                <Key>
+                    <PropertyRef Name="id" />
+                </Key>
+                <Property Name="id" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="name" Type="Edm.String" MaxLength="64" />
+                <Property Name="description" Type="Edm.String" MaxLength="128" />
+                <Property Name="measure" Type="Edm.String" MaxLength="32" />
+                <Property Name="conversion" Type="Edm.String" MaxLength="128" />
+                <Property Name="virtual" Type="Edm.Byte" DefaultValue="0" />
+                <NavigationProperty Name="Measure" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.MeasureToTypesType" FromRole="SensorTypesDependent" ToRole="MeasuresPrincipal" />
+            </EntityType>
+            <EntityType Name="MeasuresType">
+                <Key>
+                    <PropertyRef Name="id" />
+                </Key>
+                <Property Name="id" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="name" Type="Edm.String" MaxLength="64" />
+                <Property Name="description" Type="Edm.String" MaxLength="128" />
+                <Property Name="unit" Type="Edm.String" MaxLength="32" />
+            </EntityType>
+            <EntityType Name="LocationsType">
+                <Key>
+                    <PropertyRef Name="id" />
+                </Key>
+                <Property Name="id" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="name" Type="Edm.String" MaxLength="64" />
+                <Property Name="country" Type="Edm.String" MaxLength="64" />
+                <Property Name="region" Type="Edm.String" MaxLength="64" />
+                <NavigationProperty Name="IncomingTransports" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationToTransportToType" FromRole="LocationsPrincipal" ToRole="TransportsDependent" />
+                <NavigationProperty Name="OutgoingTransports" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationToTransportFromType" FromRole="LocationsPrincipal" ToRole="TransportsDependent" />
+            </EntityType>
+            <EntityType Name="ReadingsType">
+                <Key>
+                    <PropertyRef Name="id" />
+                </Key>
+                <Property Name="id" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="transport" Type="Edm.String" MaxLength="32" />
+                <Property Name="timestamp" Type="Edm.DateTime" />
+                <NavigationProperty Name="Values" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.ReadingToValuesType" FromRole="ReadingsPrincipal" ToRole="ValuesDependent" />
+                <NavigationProperty Name="Transport" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.TransportToReadingsType" FromRole="ReadingsDependent" ToRole="TransportsPrincipal" />
+            </EntityType>
+            <EntityType Name="ValuesType">
+                <Key>
+                    <PropertyRef Name="reading" />
+                    <PropertyRef Name="device" />
+                    <PropertyRef Name="sensor" />
+                </Key>
+                <Property Name="reading" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="device" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="sensor" Type="Edm.Int32" Nullable="false" />
+                <Property Name="value" Type="Edm.Decimal" Precision="32" Scale="16" />
+                <NavigationProperty Name="Device" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.DeviceToValuesType" FromRole="ValuesDependent" ToRole="DevicesPrincipal" />
+                <NavigationProperty Name="Reading" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.ReadingToValuesType" FromRole="ValuesDependent" ToRole="ReadingsPrincipal" />
+                <NavigationProperty Name="Sensor" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.SensorToValuesType" FromRole="ValuesDependent" ToRole="DeviceSensorsPrincipal" />
+            </EntityType>
+            <EntityType Name="RoutesType">
+                <Key>
+                    <PropertyRef Name="id" />
+                </Key>
+                <Property Name="id" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="name" Type="Edm.String" MaxLength="64" />
+                <Property Name="tFrom" Type="Edm.String" MaxLength="32" />
+                <Property Name="tTo" Type="Edm.String" MaxLength="32" />
+                <NavigationProperty Name="Legs" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.RouteToLegsType" FromRole="RoutesPrincipal" ToRole="RouteLegsDependent" />
+                <NavigationProperty Name="Schedules" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.RouteToSchedulesType" FromRole="RoutesPrincipal" ToRole="SchedulesDependent" />
+                <NavigationProperty Name="ToLocation" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationToRoutesToType" FromRole="RoutesDependent" ToRole="LocationsPrincipal" />
+                <NavigationProperty Name="FromLocation" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationToRoutesFromType" FromRole="RoutesDependent" ToRole="LocationsPrincipal" />
+            </EntityType>
+            <EntityType Name="RouteLegsType">
+                <Key>
+                    <PropertyRef Name="route" />
+                    <PropertyRef Name="sequence" />
+                </Key>
+                <Property Name="route" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="sequence" Type="Edm.Int32" Nullable="false" />
+                <Property Name="tFrom" Type="Edm.String" MaxLength="32" />
+                <Property Name="tTo" Type="Edm.String" MaxLength="32" />
+                <NavigationProperty Name="ToLocation" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationToLegsToType" FromRole="RouteLegsDependent" ToRole="LocationsPrincipal" />
+                <NavigationProperty Name="FromLocation" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationToLegsFromType" FromRole="RouteLegsDependent" ToRole="LocationsPrincipal" />
+            </EntityType>
+            <EntityType Name="SchedulesType">
+                <Key>
+                    <PropertyRef Name="id" />
+                </Key>
+                <Property Name="id" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="route" Type="Edm.String" MaxLength="32" />
+                <Property Name="name" Type="Edm.String" MaxLength="64" />
+                <Property Name="comment" Type="Edm.String" MaxLength="128" />
+                <NavigationProperty Name="LegDurations" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.ScheduleToDurationsType" FromRole="SchedulesPrincipal" ToRole="LegDurationsDependent" />
+            </EntityType>
+            <EntityType Name="LegDurationsType">
+                <Key>
+                    <PropertyRef Name="schedule" />
+                    <PropertyRef Name="route" />
+                    <PropertyRef Name="sequence" />
+                </Key>
+                <Property Name="schedule" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="route" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="sequence" Type="Edm.Int32" Nullable="false" />
+                <Property Name="duration" Type="Edm.Int32" />
+                <NavigationProperty Name="Leg" Relationship="msg.hcm.taxoenginetmp.petrescs.diploma.services.LegToDurationsType" FromRole="LegDurationsDependent" ToRole="RouteLegsPrincipal" />
+            </EntityType>
+            <EntityType Name="OrganizationsType">
+                <Key>
+                    <PropertyRef Name="id" />
+                </Key>
+                <Property Name="id" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="name" Type="Edm.String" MaxLength="64" />
+            </EntityType>
+            <EntityType Name="RolesType">
+                <Key>
+                    <PropertyRef Name="id" />
+                </Key>
+                <Property Name="id" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="name" Type="Edm.String" MaxLength="64" />
+                <Property Name="contact" Type="Edm.Byte" />
+            </EntityType>
+            <EntityType Name="PersonsType">
+                <Key>
+                    <PropertyRef Name="id" />
+                </Key>
+                <Property Name="id" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="name" Type="Edm.String" MaxLength="64" />
+                <Property Name="email" Type="Edm.String" MaxLength="64" />
+                <Property Name="organization" Type="Edm.String" MaxLength="32" />
+            </EntityType>
+            <EntityType Name="InvolvementsType">
+                <Key>
+                    <PropertyRef Name="transport" />
+                    <PropertyRef Name="person" />
+                    <PropertyRef Name="role" />
+                </Key>
+                <Property Name="transport" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="person" Type="Edm.String" Nullable="false" MaxLength="32" />
+                <Property Name="role" Type="Edm.String" Nullable="false" MaxLength="32" />
+            </EntityType>
+            <Association Name="RouteToLegsType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.RoutesType" Role="RoutesPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.RouteLegsType" Role="RouteLegsDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="RouteToSchedulesType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.RoutesType" Role="RoutesPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.SchedulesType" Role="SchedulesDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="LocationToRoutesToType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationsType" Role="LocationsPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.RoutesType" Role="RoutesDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="LocationToRoutesFromType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationsType" Role="LocationsPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.RoutesType" Role="RoutesDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="LocationToLegsToType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationsType" Role="LocationsPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.RouteLegsType" Role="RouteLegsDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="LocationToLegsFromType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationsType" Role="LocationsPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.RouteLegsType" Role="RouteLegsDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="ScheduleToDurationsType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.SchedulesType" Role="SchedulesPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.LegDurationsType" Role="LegDurationsDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="LegToDurationsType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.RouteLegsType" Role="RouteLegsPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.LegDurationsType" Role="LegDurationsDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="OrganizationToPersonsType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.OrganizationsType" Role="OrganizationsPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.PersonsType" Role="PersonsDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="PersonToInvovementsType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.PersonsType" Role="PersonsPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.InvolvementsType" Role="InvolvementsDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="RoleToInvolvementsType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.RolesType" Role="RolesPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.InvolvementsType" Role="InvolvementsDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="TransportToInvolvementsType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.TransportsType" Role="TransportsPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.InvolvementsType" Role="InvolvementsDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="DeviceToSensorsType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.DevicesType" Role="DevicesPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.DeviceSensorsType" Role="DeviceSensorsDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="TransportToDevicesType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.TransportsType" Role="TransportsPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.DevicesType" Role="DevicesDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="TransportToLimitsType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.TransportsType" Role="TransportsPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.LimitsType" Role="LimitsDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="TypeToSensorsType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.SensorTypesType" Role="SensorTypesPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.DeviceSensorsType" Role="DeviceSensorsDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="MeasureToTypesType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.MeasuresType" Role="MeasuresPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.SensorTypesType" Role="SensorTypesDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="TransportToReadingsType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.TransportsType" Role="TransportsPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.ReadingsType" Role="ReadingsDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="DeviceToValuesType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.DevicesType" Role="DevicesPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.ValuesType" Role="ValuesDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="ReadingToValuesType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.ReadingsType" Role="ReadingsPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.ValuesType" Role="ValuesDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="MeasureToLimitsType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.MeasuresType" Role="MeasuresPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.LimitsType" Role="LimitsDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="SensorToValuesType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.DeviceSensorsType" Role="DeviceSensorsPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.ValuesType" Role="ValuesDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="LocationToTransportToType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationsType" Role="LocationsPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.TransportsType" Role="TransportsDependent" Multiplicity="*"/>
+            </Association>
+            <Association Name="LocationToTransportFromType">
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationsType" Role="LocationsPrincipal" Multiplicity="1"/>
+                <End Type="msg.hcm.taxoenginetmp.petrescs.diploma.services.TransportsType" Role="TransportsDependent" Multiplicity="*"/>
+            </Association>
+            <EntityContainer Name="primary" m:IsDefaultEntityContainer="true">
+                <EntitySet Name="Transports" EntityType="msg.hcm.taxoenginetmp.petrescs.diploma.services.TransportsType" />
+                <EntitySet Name="Limits" EntityType="msg.hcm.taxoenginetmp.petrescs.diploma.services.LimitsType" />
+                <EntitySet Name="Devices" EntityType="msg.hcm.taxoenginetmp.petrescs.diploma.services.DevicesType" />
+                <EntitySet Name="DeviceSensors" EntityType="msg.hcm.taxoenginetmp.petrescs.diploma.services.DeviceSensorsType" />
+                <EntitySet Name="SensorTypes" EntityType="msg.hcm.taxoenginetmp.petrescs.diploma.services.SensorTypesType" />
+                <EntitySet Name="Measures" EntityType="msg.hcm.taxoenginetmp.petrescs.diploma.services.MeasuresType" />
+                <EntitySet Name="Locations" EntityType="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationsType" />
+                <EntitySet Name="Readings" EntityType="msg.hcm.taxoenginetmp.petrescs.diploma.services.ReadingsType" />
+                <EntitySet Name="Values" EntityType="msg.hcm.taxoenginetmp.petrescs.diploma.services.ValuesType" />
+                <EntitySet Name="Routes" EntityType="msg.hcm.taxoenginetmp.petrescs.diploma.services.RoutesType" />
+                <EntitySet Name="RouteLegs" EntityType="msg.hcm.taxoenginetmp.petrescs.diploma.services.RouteLegsType" />
+                <EntitySet Name="Schedules" EntityType="msg.hcm.taxoenginetmp.petrescs.diploma.services.SchedulesType" />
+                <EntitySet Name="LegDurations" EntityType="msg.hcm.taxoenginetmp.petrescs.diploma.services.LegDurationsType" />
+                <EntitySet Name="Organizations" EntityType="msg.hcm.taxoenginetmp.petrescs.diploma.services.OrganizationsType" />
+                <EntitySet Name="Roles" EntityType="msg.hcm.taxoenginetmp.petrescs.diploma.services.RolesType" />
+                <EntitySet Name="Persons" EntityType="msg.hcm.taxoenginetmp.petrescs.diploma.services.PersonsType" />
+                <EntitySet Name="Involvements" EntityType="msg.hcm.taxoenginetmp.petrescs.diploma.services.InvolvementsType" />
+                <AssociationSet Name="RouteToLegs" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.RouteToLegsType">
+                    <End Role="RoutesPrincipal" EntitySet="Routes"/>
+                    <End Role="RouteLegsDependent" EntitySet="RouteLegs"/>
+                </AssociationSet>
+                <AssociationSet Name="RouteToSchedules" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.RouteToSchedulesType">
+                    <End Role="RoutesPrincipal" EntitySet="Routes"/>
+                    <End Role="SchedulesDependent" EntitySet="Schedules"/>
+                </AssociationSet>
+                <AssociationSet Name="LocationToRoutesTo" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationToRoutesToType">
+                    <End Role="LocationsPrincipal" EntitySet="Locations"/>
+                    <End Role="RoutesDependent" EntitySet="Routes"/>
+                </AssociationSet>
+                <AssociationSet Name="LocationToRoutesFrom" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationToRoutesFromType">
+                    <End Role="LocationsPrincipal" EntitySet="Locations"/>
+                    <End Role="RoutesDependent" EntitySet="Routes"/>
+                </AssociationSet>
+                <AssociationSet Name="LocationToLegsTo" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationToLegsToType">
+                    <End Role="LocationsPrincipal" EntitySet="Locations"/>
+                    <End Role="RouteLegsDependent" EntitySet="RouteLegs"/>
+                </AssociationSet>
+                <AssociationSet Name="LocationToLegsFrom" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationToLegsFromType">
+                    <End Role="LocationsPrincipal" EntitySet="Locations"/>
+                    <End Role="RouteLegsDependent" EntitySet="RouteLegs"/>
+                </AssociationSet>
+                <AssociationSet Name="ScheduleToDurations" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.ScheduleToDurationsType">
+                    <End Role="SchedulesPrincipal" EntitySet="Schedules"/>
+                    <End Role="LegDurationsDependent" EntitySet="LegDurations"/>
+                </AssociationSet>
+                <AssociationSet Name="LegToDurations" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.LegToDurationsType">
+                    <End Role="RouteLegsPrincipal" EntitySet="RouteLegs"/>
+                    <End Role="LegDurationsDependent" EntitySet="LegDurations"/>
+                </AssociationSet>
+                <AssociationSet Name="OrganizationToPersons" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.OrganizationToPersonsType">
+                    <End Role="OrganizationsPrincipal" EntitySet="Organizations"/>
+                    <End Role="PersonsDependent" EntitySet="Persons"/>
+                </AssociationSet>
+                <AssociationSet Name="PersonToInvovements" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.PersonToInvovementsType">
+                    <End Role="PersonsPrincipal" EntitySet="Persons"/>
+                    <End Role="InvolvementsDependent" EntitySet="Involvements"/>
+                </AssociationSet>
+                <AssociationSet Name="RoleToInvolvements" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.RoleToInvolvementsType">
+                    <End Role="RolesPrincipal" EntitySet="Roles"/>
+                    <End Role="InvolvementsDependent" EntitySet="Involvements"/>
+                </AssociationSet>
+                <AssociationSet Name="TransportToInvolvements" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.TransportToInvolvementsType">
+                    <End Role="TransportsPrincipal" EntitySet="Transports"/>
+                    <End Role="InvolvementsDependent" EntitySet="Involvements"/>
+                </AssociationSet>
+                <AssociationSet Name="DeviceToSensors" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.DeviceToSensorsType">
+                    <End Role="DevicesPrincipal" EntitySet="Devices"/>
+                    <End Role="DeviceSensorsDependent" EntitySet="DeviceSensors"/>
+                </AssociationSet>
+                <AssociationSet Name="TransportToDevices" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.TransportToDevicesType">
+                    <End Role="TransportsPrincipal" EntitySet="Transports"/>
+                    <End Role="DevicesDependent" EntitySet="Devices"/>
+                </AssociationSet>
+                <AssociationSet Name="TransportToLimits" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.TransportToLimitsType">
+                    <End Role="TransportsPrincipal" EntitySet="Transports"/>
+                    <End Role="LimitsDependent" EntitySet="Limits"/>
+                </AssociationSet>
+                <AssociationSet Name="TypeToSensors" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.TypeToSensorsType">
+                    <End Role="SensorTypesPrincipal" EntitySet="SensorTypes"/>
+                    <End Role="DeviceSensorsDependent" EntitySet="DeviceSensors"/>
+                </AssociationSet>
+                <AssociationSet Name="MeasureToTypes" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.MeasureToTypesType">
+                    <End Role="MeasuresPrincipal" EntitySet="Measures"/>
+                    <End Role="SensorTypesDependent" EntitySet="SensorTypes"/>
+                </AssociationSet>
+                <AssociationSet Name="TransportToReadings" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.TransportToReadingsType">
+                    <End Role="TransportsPrincipal" EntitySet="Transports"/>
+                    <End Role="ReadingsDependent" EntitySet="Readings"/>
+                </AssociationSet>
+                <AssociationSet Name="DeviceToValues" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.DeviceToValuesType">
+                    <End Role="DevicesPrincipal" EntitySet="Devices"/>
+                    <End Role="ValuesDependent" EntitySet="Values"/>
+                </AssociationSet>
+                <AssociationSet Name="ReadingToValues" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.ReadingToValuesType">
+                    <End Role="ReadingsPrincipal" EntitySet="Readings"/>
+                    <End Role="ValuesDependent" EntitySet="Values"/>
+                </AssociationSet>
+                <AssociationSet Name="MeasureToLimits" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.MeasureToLimitsType">
+                    <End Role="MeasuresPrincipal" EntitySet="Measures"/>
+                    <End Role="LimitsDependent" EntitySet="Limits"/>
+                </AssociationSet>
+                <AssociationSet Name="SensorToValues" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.SensorToValuesType">
+                    <End Role="DeviceSensorsPrincipal" EntitySet="DeviceSensors"/>
+                    <End Role="ValuesDependent" EntitySet="Values"/>
+                </AssociationSet>
+                <AssociationSet Name="LocationToTransportTo" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationToTransportToType">
+                    <End Role="LocationsPrincipal" EntitySet="Locations"/>
+                    <End Role="TransportsDependent" EntitySet="Transports"/>
+                </AssociationSet>
+                <AssociationSet Name="LocationToTransportFrom" Association="msg.hcm.taxoenginetmp.petrescs.diploma.services.LocationToTransportFromType">
+                    <End Role="LocationsPrincipal" EntitySet="Locations"/>
+                    <End Role="TransportsDependent" EntitySet="Transports"/>
+                </AssociationSet>
+            </EntityContainer>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

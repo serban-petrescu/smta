@@ -1,0 +1,63 @@
+{
+    "resources": [
+        {
+            "name": "view/Main.view.xml"
+        },
+        {
+            "name": "view/ValueHelp.view.xml"
+        },
+        {
+            "name": "view/Variants.view.xml"
+        },
+        {
+            "name": "controller/Main.controller.js"
+        },
+        {
+            "name": "controller/HelpPage.js"
+        },
+        {
+            "name": "controller/HelpPopover.js"
+        },
+        {
+            "name": "controller/HelpTitle.js"
+        },
+        {
+            "name": "controller/ValueHelp.controller.js"
+        },
+        {
+            "name": "controller/Variants.controller.js"
+        },
+        {
+            "name": "controller/FioriDependencies.js"
+        },
+        {
+            "name": "i18n/i18n.properties",
+            "raw": "i18n/i18n.properties"
+        },
+        {
+            "name": "model/models.js"
+        },
+        {
+            "name": "model/config.json"
+        },
+        {
+            "name": "model/formatter.js"
+        },
+        {
+            "name": "Component.js"
+        },
+        {
+            "name": "css/style.css"
+        },
+        {
+            "name": "manifest.json"
+        },
+        {
+            "name": "Component-preload.js",
+            "merged": true
+        },
+        {
+            "name": "neo-app.json"
+        }
+    ]
+}

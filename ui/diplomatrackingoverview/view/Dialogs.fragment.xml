@@ -1,0 +1,52 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:form="sap.ui.layout.form"
+	xmlns:core="sap.ui.core">
+	<SelectDialog id="dialogSearch" 
+		noDataText="{i18n>noResults}" 
+		title="{i18n>searchTitle}" 
+		search="onSearch" 
+		confirm="closeSearchDialog"
+		close="closeSearchDialog" 
+		multiSelect="false"
+		rememberSelections="false"
+		items="{path: 'main>/markers', sorter: {path: 'title'} }">
+		<StandardListItem title="{main>title}" icon="{main>icon}" iconInset="true"/>
+	</SelectDialog>
+	<Dialog id="dialogFilter" 
+		title="{i18n>filterTitle}" 
+		contentHeight="10rem" 
+		stretch="{device>/system/phone}" >
+		<List items="{main>/filters}" mode="MultiSelect" class="sapUiTinyMarginTop">
+			<StandardListItem title="{main>title}" icon="{main>icon}" iconInset="true" selected="{main>selected}"/>
+		</List>
+		<beginButton>
+			<Button text="{i18n>close}" press="closeFilter"/>
+		</beginButton>
+	</Dialog>
+	<Dialog id="dialogSettings" 
+		stretch="{device>/system/phone}" 
+		contentHeight="20rem"
+		title="{i18n>settingsTitle}" >
+		<Panel><VBox>
+			<Label text="{i18n>fetchTypeIntro}"/>
+			<RadioButtonGroup columns="1" width="100%" select="onRadioChange" selectedIndex="{main>/settings/fetchType}">
+				<buttons>
+					<RadioButton text="{i18n>firstFetchType}" />
+					<RadioButton text="{i18n>secondFetchType}" />
+					<RadioButton text="{i18n>thirdFetchType}" />
+				</buttons>
+			</RadioButtonGroup>
+			<CheckBox text="{i18n>autorefreshEnabled}" selected="{main>/settings/autorefresh}" visible="{main>/controls/firstFetch}"/>
+			<Label text="{i18n>fixedDate}" visible="{main>/controls/secondFetch}"/>
+			<DateTimeInput type="DateTime" dateValue="{main>/settings/fixedDate}" visible="{main>/controls/secondFetch}" />
+			<Label text="{i18n>beginDate}" visible="{main>/controls/thirdFetch}"/>
+			<DateTimeInput type="DateTime" dateValue="{main>/settings/beginDate}" visible="{main>/controls/thirdFetch}" />
+			<Label text="{i18n>endDate}" visible="{main>/controls/thirdFetch}"/>
+			<DateTimeInput type="DateTime" dateValue="{main>/settings/endDate}" visible="{main>/controls/thirdFetch}" />
+		</VBox></Panel>
+		<beginButton>
+			<Button text="{i18n>close}" press="applySettings"/>
+		</beginButton>
+	</Dialog>
+</core:FragmentDefinition>

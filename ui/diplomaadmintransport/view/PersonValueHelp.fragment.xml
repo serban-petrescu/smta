@@ -1,0 +1,88 @@
+<core:FragmentDefinition 
+    xmlns:core="sap.ui.core" 
+    xmlns:form="sap.ui.layout.form"
+    xmlns="sap.m">
+	<Dialog id="vhdPerson"
+	    contentHeight="75%"
+		contentWidth="30rem" 
+		stretch="{device>/system/phone}"
+	    title="{i18n>vhdPersonTitle}" >
+	    <VBox>
+	        <HBox class="sapUiTinyMargin" fitContainer="true">
+	            <Input id="inpSelectedPerson" 
+	                enabled="false" 
+	                width="100%" 
+	                value="{detailView>/person/name}">
+					<layoutData>
+						<FlexItemData growFactor="1" />
+					</layoutData>
+	            </Input>
+	            <Select id="selSelectedRole" 
+	                width="100%" 
+	                selectedKey="{detailView>/person/role}"
+	                items="{path: '/Roles', sorter: {path: 'name'}}">
+	                <core:Item text="{name}" key="{id}" />
+					<layoutData>
+						<FlexItemData growFactor="1" />
+					</layoutData>
+	            </Select>
+	        </HBox>
+	        <Toolbar id="tlbPersonMainSearch">
+	            <SearchField id="seaPersonNameSearch" 
+	                placeholder="{i18n>searchByName}"
+	                search="onSearchPersonMain"/>
+	            <ToolbarSpacer/>
+	            <Button type="Transparent"
+	                text="{= ${detailView>/person/advanced} ? ${i18n>hideAdvanced} : ${i18n>showAdvanced} }"
+	                press="onTogglePersonAdvancedSearch"/>
+	        </Toolbar>
+	        <Panel visible="{detailView>/person/advanced}" class="sapUiNoContentPadding">
+	            <form:SimpleForm id="sfmAdvancedPerson"
+        			maxContainerCols="2"
+        			editable="true"
+        			layout="ResponsiveGridLayout"
+        			labelSpanL="4"
+        			labelSpanM="4"
+        			emptySpanL="0"
+        			emptySpanM="0"
+        			columnsL="2"
+        			columnsM="2"
+        			class="editableForm">
+        			<form:content>
+        			    <Label text="{i18n>personOrganization}"/>
+	                    <SearchField id="seaPersonOrganizationSearch" search="onSearchPersonMain"/>
+        			    <Label text="{i18n>personEmail}"/>
+	                    <SearchField id="seaPersonEmailSearch" search="onSearchPersonMain"/>
+    			    </form:content>
+    		    </form:SimpleForm>
+	        </Panel>
+	        <Table id="tblPersonSearchMain"
+	            growing="true"
+	            items="{path: '/Persons', sorter: {path: 'name'}, parameters: {expand: 'Organization,DefaultRole'}}">
+	            <columns>
+	                <Column><Label text="{i18n>personName}"/></Column>
+	                <Column><Label text="{i18n>personOrganization}"/></Column>
+	                <Column><Label text="{i18n>personDefaultRole}"/></Column>
+	            </columns>
+	            <items>
+	                <ColumnListItem type="Active" press="onPersonSelected">
+	                    <cells>
+	                        <Text text="{name}"/>
+	                        <Text text="{Organization/name}"/>
+	                        <Text text="{DefaultRole/name}"/>
+	                    </cells>
+	                </ColumnListItem>
+	            </items>
+	        </Table>
+	    </VBox>
+	    <beginButton>
+	        <Button id="btnConfirmPerson" 
+	            enabled="{= ${detailView>/person/role} !== '' &amp;&amp; ${detailView>/person/id} !== '' }" 
+	            text="{i18n>confirm}" 
+	            press="onPersonVhdConfirm"/>
+	    </beginButton>
+	    <endButton>
+	        <Button text="{i18n>cancel}" press="onPersonVhdClose"/>
+	    </endButton>
+	</Dialog>
+</core:FragmentDefinition>

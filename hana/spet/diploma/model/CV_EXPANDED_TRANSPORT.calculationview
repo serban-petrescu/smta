@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Calculation:scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Calculation="http://www.sap.com/ndb/BiModelCalculation.ecore" schemaVersion="2.3" id="CV_EXPANDED_TRANSPORT" applyPrivilegeType="NONE" checkAnalyticPrivileges="false" defaultClient="$$client$$" defaultLanguage="$$language$$" hierarchiesSQLEnabled="false" translationRelevant="true" visibility="internal" calculationScenarioType="SCRIPT_BASED" dataCategory="DEFAULT" enforceSqlExecution="false" executionSemantic="UNDEFINED" scriptParametersCaseSensitive="true">
+  <descriptions defaultDescription="Expanded version of a transport, used for searching"/>
+  <localVariables/>
+  <variableMappings/>
+  <dataSources/>
+  <calculationViews>
+    <calculationView xsi:type="Calculation:SqlScriptView" id="Script_View">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute datatype="NVARCHAR" id="id" length="32"/>
+        <viewAttribute datatype="NVARCHAR" id="route" length="64"/>
+        <viewAttribute datatype="NVARCHAR" id="schedule" length="64"/>
+        <viewAttribute datatype="NVARCHAR" id="fromName" length="64"/>
+        <viewAttribute datatype="NVARCHAR" id="toName" length="64"/>
+        <viewAttribute datatype="INTEGER" id="totalDuration"/>
+        <viewAttribute datatype="NVARCHAR" id="organizations" length="5000"/>
+        <viewAttribute datatype="NVARCHAR" id="persons" length="5000"/>
+        <viewAttribute datatype="NVARCHAR" id="waypointNames" length="5000"/>
+        <viewAttribute datatype="NVARCHAR" id="waypointRegions" length="5000"/>
+        <viewAttribute datatype="NVARCHAR" id="waypointCountries" length="5000"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <definition>/********* Begin Procedure Script ************/ 
+-------------------------------------------------------------------------------------------------------------------
+-- @date:           10.05.2016
+-- @component:      Core
+-------------------------------------------------------------------------------------------------------------------
+-- @description:
+-- Gets &quot;expanded&quot; transport details to be used for searching purposes.
+-------------------------------------------------------------------------------------------------------------------
+BEGIN 
+    var_out = SELECT &quot;T&quot;.&quot;id&quot;, 
+            &quot;R&quot;.&quot;name&quot; AS &quot;route&quot;,
+            &quot;S&quot;.&quot;name&quot; as &quot;schedule&quot;, 
+            CASE &quot;T&quot;.&quot;returning&quot; WHEN 0 THEN &quot;LF&quot;.&quot;name&quot; ELSE &quot;LT&quot;.&quot;name&quot; END AS &quot;fromName&quot;, 
+            CASE &quot;T&quot;.&quot;returning&quot; WHEN 0 THEN &quot;LT&quot;.&quot;name&quot; ELSE &quot;LF&quot;.&quot;name&quot; END AS &quot;toName&quot;, 
+            &quot;L3&quot;.&quot;totalDuration&quot;,
+            &quot;L1&quot;.&quot;organizations&quot;,
+            &quot;L1&quot;.&quot;persons&quot;, 
+            &quot;L2&quot;.&quot;waypointNames&quot;,
+            &quot;L2&quot;.&quot;waypointRegions&quot;, 
+            &quot;L2&quot;.&quot;waypointCountries&quot;
+        FROM &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eTransport&quot; AS &quot;T&quot;
+        INNER JOIN &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eRoute&quot; AS &quot;R&quot;
+        ON &quot;T&quot;.&quot;route&quot; = &quot;R&quot;.&quot;id&quot;
+        INNER JOIN &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eSchedule&quot; AS &quot;S&quot;
+        ON &quot;T&quot;.&quot;schedule&quot; = &quot;S&quot;.&quot;id&quot;
+        INNER JOIN &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eLocation&quot; AS &quot;LF&quot;
+        ON &quot;R&quot;.&quot;tFrom&quot; = &quot;LF&quot;.&quot;id&quot;
+        INNER JOIN &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eLocation&quot; AS &quot;LT&quot;
+        ON &quot;R&quot;.&quot;tTo&quot; = &quot;LT&quot;.&quot;id&quot;
+        LEFT JOIN (
+            SELECT 
+                &quot;I&quot;.&quot;transport&quot;,
+                STRING_AGG(&quot;O&quot;.&quot;name&quot; || ';') AS &quot;organizations&quot;,
+                STRING_AGG(&quot;P&quot;.&quot;name&quot; || ';') AS &quot;persons&quot;
+            FROM &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eInvolvement&quot; AS &quot;I&quot;
+            INNER JOIN &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.ePerson&quot; AS &quot;P&quot;
+            ON &quot;I&quot;.&quot;person&quot; = &quot;P&quot;.&quot;id&quot;
+            INNER JOIN &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eOrganization&quot;
+            AS &quot;O&quot; ON &quot;P&quot;.&quot;organization&quot; = &quot;O&quot;.&quot;id&quot;
+            GROUP BY &quot;I&quot;.&quot;transport&quot;
+        ) AS &quot;L1&quot; ON &quot;T&quot;.&quot;id&quot; = &quot;L1&quot;.&quot;transport&quot;
+        LEFT JOIN (
+            SELECT 
+                &quot;TW&quot;.&quot;transport&quot;,
+                STRING_AGG(&quot;LW&quot;.&quot;name&quot; || ';') AS &quot;waypointNames&quot;,
+                STRING_AGG(&quot;LW&quot;.&quot;region&quot; || ';') AS &quot;waypointRegions&quot;, 
+                STRING_AGG(&quot;LW&quot;.&quot;country&quot; || ';') AS &quot;waypointCountries&quot;
+            FROM &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.vTransportWaypoints&quot; AS &quot;TW&quot;
+            INNER JOIN &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eLocation&quot; AS &quot;LW&quot;
+            ON &quot;TW&quot;.&quot;waypoint&quot; = &quot;LW&quot;.&quot;id&quot;
+            GROUP BY &quot;TW&quot;.&quot;transport&quot;
+        ) AS &quot;L2&quot; ON &quot;T&quot;.&quot;id&quot; = &quot;L2&quot;.&quot;transport&quot;
+        LEFT JOIN (
+            SELECT &quot;schedule&quot;, SUM(&quot;duration&quot;) AS &quot;totalDuration&quot;
+            FROM &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eLegDuration&quot;
+            GROUP BY &quot;schedule&quot;
+        ) AS &quot;L3&quot; ON &quot;L3&quot;.&quot;schedule&quot; = &quot;T&quot;.&quot;schedule&quot;;
+        
+
+END /********* End Procedure Script ************/</definition>
+    </calculationView>
+  </calculationViews>
+  <logicalModel id="Script_View">
+    <descriptions/>
+    <attributes>
+      <attribute id="id" order="1">
+        <descriptions/>
+        <keyMapping columnObjectName="Script_View" columnName="id"/>
+      </attribute>
+      <attribute id="route" order="2">
+        <descriptions defaultDescription="route"/>
+        <keyMapping columnObjectName="Script_View" columnName="route"/>
+      </attribute>
+      <attribute id="schedule" order="3">
+        <descriptions defaultDescription="schedule"/>
+        <keyMapping columnObjectName="Script_View" columnName="schedule"/>
+      </attribute>
+      <attribute id="fromName" order="4">
+        <descriptions/>
+        <keyMapping columnObjectName="Script_View" columnName="fromName"/>
+      </attribute>
+      <attribute id="toName" order="5">
+        <descriptions/>
+        <keyMapping columnObjectName="Script_View" columnName="toName"/>
+      </attribute>
+      <attribute id="totalDuration" order="6">
+        <descriptions/>
+        <keyMapping columnObjectName="Script_View" columnName="totalDuration"/>
+      </attribute>
+      <attribute id="organizations" order="7">
+        <descriptions/>
+        <keyMapping columnObjectName="Script_View" columnName="organizations"/>
+      </attribute>
+      <attribute id="persons" order="8">
+        <descriptions/>
+        <keyMapping columnObjectName="Script_View" columnName="persons"/>
+      </attribute>
+      <attribute id="waypointNames" order="9">
+        <descriptions/>
+        <keyMapping columnObjectName="Script_View" columnName="waypointNames"/>
+      </attribute>
+      <attribute id="waypointRegions" order="10">
+        <descriptions/>
+        <keyMapping columnObjectName="Script_View" columnName="waypointRegions"/>
+      </attribute>
+      <attribute id="waypointCountries" order="11">
+        <descriptions/>
+        <keyMapping columnObjectName="Script_View" columnName="waypointCountries"/>
+      </attribute>
+    </attributes>
+    <calculatedAttributes/>
+    <privateDataFoundation>
+      <tableProxies/>
+      <joins/>
+      <layout>
+        <shapes/>
+      </layout>
+    </privateDataFoundation>
+    <baseMeasures/>
+    <calculatedMeasures/>
+    <restrictedMeasures/>
+    <localDimensions/>
+  </logicalModel>
+  <layout>
+    <shapes>
+      <shape modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
+        <upperLeftCorner x="40" y="85"/>
+      </shape>
+    </shapes>
+  </layout>
+</Calculation:scenario>

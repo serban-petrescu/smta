@@ -1,0 +1,24 @@
+<core:FragmentDefinition 
+    xmlns:core="sap.ui.core" 
+    xmlns:l="sap.ui.layout"
+    xmlns="sap.m">
+    <Dialog title="{i18n>convTitle}" id="dialogConvert" contentWidth="25rem" contentHeight="35rem" stretch="{device>/system/phone}">
+    	<content>
+    		<Panel><l:VerticalLayout>
+    			<Label text="{i18n>expression}"/>
+    			<Input width="100%" id="inpExpression" change="testExpression"/>
+    			<Label text="{i18n>testExpr}" />
+    			<Input id="inpTest" width="100%" liveChange="testExpression" placeholder="{i18n>testValue}" type="Number"/>
+				<Text id="lblExprResult" text="{i18n>testResultEmpty}" class="sapUiSmallMarginBottom"/>
+    			<Label text="{i18n>about}" />
+    			<Text text="{i18n>aboutLong}" />
+    		</l:VerticalLayout></Panel>
+    	</content>
+    	<beginButton>
+    	    <Button text="{i18n>apply}" press="changeConvertValue" enabled="{detailView>/convertCorrect}"/>
+	    </beginButton>
+    	<endButton>
+	        <Button text="{i18n>cancel}" press="closeConvertDialog"/>
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

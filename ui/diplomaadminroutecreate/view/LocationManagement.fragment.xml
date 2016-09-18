@@ -1,0 +1,97 @@
+<core:FragmentDefinition 
+    xmlns:core="sap.ui.core" 
+    xmlns:l="sap.ui.layout"
+    xmlns:form="sap.ui.layout.form"
+	xmlns:u="sap.ui.unified"
+    xmlns="sap.m">
+    
+	<Dialog id="dialogLocation" 
+	    title="{i18n>locationTitle}" 
+	    busyIndicatorDelay="500" 
+		type="Standard" 
+		contentWidth="20rem" 
+		contentHeight="75%"
+		stretch="{device>/system/phone}">
+		<content>
+			<IconTabBar id="itbLocations" 
+			    expandable="false" 
+			    expanded="true">
+				<items>
+					<IconTabFilter id="icfCreateLocation" 
+					    icon="sap-icon://create" 
+					    text="{i18n>tabCreateLocation}" 
+					    iconColor="Positive">
+					    <Panel>
+    						<Label text="{i18n>locationName}" id="lblLocationName" />
+    						<Input width="100%" id="locationName" />
+    						    
+    						<Label text="{i18n>locationCountry}" id="lblLocationCountry" />
+    						<Input width="100%" id="locationCountry" />
+    						    
+    						<Label text="{i18n>locationRegion}" id="lblLocationRegion" />
+    						<Input width="100%" id="locationRegion" />
+    						    
+    						<Label text="{i18n>locationLat}" id="lblLocationLat" />
+    						<Input width="100%" id="locationLat" type="Number" />
+    						    
+    						<Label text="{i18n>locationLng}" id="lblLocationLng" />
+    						<Input width="100%" id="locationLng" type="Number" />
+    						    
+    						<Button id="btnLocationCreateAccept" 
+    						    text="{i18n>create}" 
+    						    type="Accept" 
+    						    press="createLocation"/>
+					    </Panel>
+					</IconTabFilter>
+					<IconTabFilter id="itfDeleteLocation" 
+					    icon="sap-icon://delete" 
+					    text="{i18n>tabDeleteLocation}" 
+					    iconColor="Negative">
+						<List id="locationList" 
+						    growing="true"
+						    mode="Delete" delete="deleteLocation"
+							items="{path: '/Locations', sorter: { path: 'name', descending: false } }" >
+						    <headerToolbar>
+						        <Toolbar id="tlbLocationDelete">
+						            <Title text="{i18n>locations}" />
+						            <ToolbarSpacer/>
+						            <SearchField id="seaLocationsDelete" 
+						                width="50%"
+						                search="onLocationDeleteSearch" />
+						        </Toolbar>
+						    </headerToolbar>
+							<StandardListItem title="{name}" info="{
+							    parts: [{path: 'country'}, {path: 'region'}],
+							    formatter: '.formatLocationInfo'
+					        }"/>
+						</List>
+					</IconTabFilter>
+					<IconTabFilter id="itfUpload"
+					    icon="sap-icon://upload" 
+					    text="{i18n>tabUploadLocations}" 
+					    iconColor="Default">
+						<Panel>
+						    <l:VerticalLayout>
+    						    <Label id="lblCsvFile" text="{i18n>csvFile}"/>
+        						<u:FileUploader id="locationUploader" 
+        						    tooltip="{i18n>locationUploadTooltip}" 
+        							uploadComplete="onLocationUploadComplete" 
+        							width="100%" 
+        							sendXHR="true" 
+        							fileType="csv" />
+        						<CheckBox text="{i18n>csvHasHeader}"  id="locationHeader" width="100%"/>     
+        						<Button id="btnLocationUploadAccept" 
+        						    text="{i18n>btnUploadLocations}" 
+        						    press="onLocationUploadPress" 
+        						    type="Accept" 
+        							icon="sap-icon://accept" />
+    				        </l:VerticalLayout>
+    				    </Panel>
+					</IconTabFilter>
+				</items>
+			</IconTabBar>
+		</content>
+		<endButton><Button id="btnLocationDialogClose" text="{i18n>close}" press="closeLocationDialog"/></endButton>
+	</Dialog>
+			
+</core:FragmentDefinition>

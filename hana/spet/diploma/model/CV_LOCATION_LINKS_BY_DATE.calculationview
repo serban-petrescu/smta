@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Calculation:scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Calculation="http://www.sap.com/ndb/BiModelCalculation.ecore" schemaVersion="2.3" id="CV_LOCATION_LINKS_BY_DATE" applyPrivilegeType="NONE" checkAnalyticPrivileges="true" defaultClient="$$client$$" defaultLanguage="$$language$$" hierarchiesSQLEnabled="false" translationRelevant="true" visibility="internal" calculationScenarioType="SCRIPT_BASED" dataCategory="DEFAULT" enforceSqlExecution="false" executionSemantic="UNDEFINED" scriptParametersCaseSensitive="true">
+  <descriptions defaultDescription="Gets the location links for a given date"/>
+  <localVariables>
+    <variable id="IV_DATE" parameter="true">
+      <descriptions defaultDescription="IV_DATE"/>
+      <variableProperties datatype="TIMESTAMP" mandatory="true">
+        <valueDomain type="empty"/>
+        <selection multiLine="false" type="SingleValue"/>
+        <defaultExpression>NOW()</defaultExpression>
+      </variableProperties>
+    </variable>
+  
+    <variable id="IV_LOCATION" parameter="true">
+      <variableProperties datatype="NVARCHAR" length="32">
+        <valueDomain type="empty"/>
+        <selection multiLine="false" type="SingleValue"/>
+      </variableProperties>
+    </variable>
+  </localVariables>
+  <variableMappings/>
+  <dataSources/>
+  <calculationViews>
+    <calculationView xsi:type="Calculation:SqlScriptView" id="Script_View">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute datatype="NVARCHAR" id="transport" length="32"/>
+        <viewAttribute datatype="INTEGER" id="direction"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <localVariable>#IV_DATE</localVariable>
+      <localVariable>#IV_LOCATION</localVariable>
+      <definition> /********* Begin Procedure Script ************/ 
+-------------------------------------------------------------------------------------------------------------------
+-- @date:           26.05.2016
+-- @component:      Core
+-------------------------------------------------------------------------------------------------------------------
+-- @description:
+-- Gets the incoming / outgoing transports for a given location for a given date.
+-------------------------------------------------------------------------------------------------------------------
+ BEGIN 
+ 	 var_out = SELECT &quot;T1&quot;.&quot;transport&quot;, &quot;T1&quot;.&quot;direction&quot;
+ 	 	FROM &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.vLocationTransports&quot; AS &quot;T1&quot;
+ 	 	LEFT JOIN &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.vTransportActivePeriods&quot;
+ 	 	AS &quot;T2&quot; ON &quot;T1&quot;.&quot;location&quot; = :iv_location AND &quot;T1&quot;.&quot;transport&quot; = &quot;T2&quot;.&quot;id&quot; 
+ 	 	AND &quot;T2&quot;.&quot;startTimestamp&quot; &lt; :iv_date AND ADD_SECONDS(&quot;T2&quot;.&quot;endTimestamp&quot;, 3600) &gt; :iv_date
+ 	 	WHERE &quot;T2&quot;.&quot;id&quot; IS NOT NULL; 
+
+END /********* End Procedure Script ************/</definition>
+    </calculationView>
+  </calculationViews>
+  <logicalModel id="Script_View">
+    <descriptions/>
+    <attributes>
+      <attribute id="transport" order="1">
+        <descriptions defaultDescription="TRANSPORT"/>
+        <keyMapping columnObjectName="Script_View" columnName="transport"/>
+      </attribute>
+    </attributes>
+    <calculatedAttributes/>
+    <privateDataFoundation>
+      <tableProxies/>
+      <joins/>
+      <layout>
+        <shapes/>
+      </layout>
+    </privateDataFoundation>
+    <baseMeasures>
+      <measure id="direction" order="2" aggregationType="sum" measureType="simple">
+        <descriptions defaultDescription="DIRECTION"/>
+        <measureMapping columnObjectName="Script_View" columnName="direction"/>
+      </measure>
+    </baseMeasures>
+    <calculatedMeasures/>
+    <restrictedMeasures/>
+    <localDimensions/>
+  </logicalModel>
+  <layout>
+    <shapes>
+      <shape modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
+        <upperLeftCorner x="40" y="85"/>
+      </shape>
+    </shapes>
+  </layout>
+</Calculation:scenario>

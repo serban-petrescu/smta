@@ -1,0 +1,97 @@
+-------------------------------------------------------------------------------------------------------------------
+-- @date:           14.05.2016
+-- @component:      Core
+-------------------------------------------------------------------------------------------------------------------
+-- @description:
+-- Checks the schedule and updates the relevant tables.
+-- @param {string}      iv_transport        - The ID of the transport which has just delivered a reading.
+-- @param {string}      iv_reading          - The ID of the just-delivered reading.
+-- @param {integer}     iv_reference        - The SRID (geo-spatial reference system).
+-- @param {double}      iv_distance         - The minimum distance between a reading an a location to be considered
+--                                          as "arrived".
+-- @param {integer}     ev_offset           - The offset (in minutes) to the schedule.
+-------------------------------------------------------------------------------------------------------------------
+PROCEDURE "SPET_DIPLOMA"."spet.diploma.procedures::checkSchedule" ( 
+    IN  iv_transport    NVARCHAR(32),
+    IN  iv_reading      NVARCHAR(32),
+    IN  iv_reference    INT DEFAULT 1000004326,
+    IN  iv_distance     DOUBLE DEFAULT 2000,
+    OUT ev_offset       INT
+)
+   LANGUAGE SQLSCRIPT
+   SQL SECURITY INVOKER 
+   DEFAULT SCHEMA "SPET_DIPLOMA"
+   AS
+BEGIN
+    DECLARE lv_last_step INT;
+    DECLARE lv_current_step INT;
+    DECLARE lv_duration INT;
+    DECLARE lv_count INT;
+    DECLARE lv_target_ts TIMESTAMP;
+    
+    -- get the last location in which the transport arrived
+    SELECT IFNULL("V"."sequence", -2000000) INTO lv_last_step
+        FROM "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eTransport" AS "T"
+        LEFT JOIN  "SPET_DIPLOMA"."spet.diploma.data::ctxCore.vTransportWaypoints" AS "V"
+        ON "T"."id" = "V"."transport" AND "T"."lastLocation" = "V"."waypoint" WHERE "T"."id" = :iv_transport;
+    
+    -- get the closest locations for the current reading, which are after the previous location in the route 
+    lt_closest = SELECT "V"."sequence", "L"."id" AS "location"
+        FROM "SPET_DIPLOMA"."spet.diploma.data::ctxCore.vTransportWaypoints" AS "V"
+        INNER JOIN "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eReading" AS "R"
+        ON "V"."transport" = :iv_transport AND "R"."id" = :iv_reading
+        INNER JOIN "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eLocation" AS "L"
+        ON "V"."sequence" > :lv_last_step AND "V"."waypoint" = "L"."id"
+        AND "L"."position".ST_DISTANCE("R"."position", 'meter') < :iv_distance;
+    
+    -- check that there is at least one such location
+    SELECT COUNT(*) INTO lv_count FROM :lt_closest;
+    IF :lv_count > 0 THEN
+    
+        -- get the sequence of the location from the route (the situation in which there are several is improbable)
+        SELECT MAX("sequence") INTO lv_current_step FROM :lt_closest;
+        
+        -- get the amount of time (seconds) required to get from the last location to the current one
+        SELECT SUM("D"."duration") * 60 INTO lv_duration 
+            FROM "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eTransport" AS "T"
+            INNER JOIN "SPET_DIPLOMA"."spet.diploma.data::ctxCore.vTransportWaypoints" AS "S"
+            ON "T"."id" = :iv_transport AND "T"."id" = "S"."transport" AND "S"."sequence" >= :lv_last_step 
+            INNER JOIN "SPET_DIPLOMA"."spet.diploma.data::ctxCore.vTransportWaypoints" AS "E"
+            ON "T"."id" = "E"."transport" AND "E"."sequence" <= :lv_current_step AND "S"."sequence" = "E"."sequence" - 1
+            INNER JOIN "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eRouteLeg" AS "R"
+            ON "R"."route" = "T"."route" AND ( 
+                ( "T"."returning" = 0 AND "R"."tFrom" = "S"."waypoint" AND "R"."tTo" =  "E"."waypoint") OR
+                ( "T"."returning" = 1 AND "R"."tFrom" = "E"."waypoint" AND "R"."tTo" =  "S"."waypoint") )
+            INNER JOIN "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eLegDuration" AS "D"
+            ON "D"."schedule" = "T"."schedule" AND "D"."sequence" = "R"."sequence";
+            
+        -- get the timestamp at which the transport was supposed to get to the location
+        SELECT ADD_SECONDS(IFNULL("lastWhen", "tWhen"), IFNULL(:lv_duration, 0)) INTO lv_target_ts
+            FROM "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eTransport" 
+            WHERE "id" = :iv_transport;
+           
+        -- update the transport with the newly determined info
+        UPDATE "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eTransport" SET 
+                "lastWhen" = (
+                    SELECT "timestamp" 
+                        FROM "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eReading"
+                        WHERE "id" = :iv_reading
+                ), 
+                "lastLocation" = (
+                    SELECT "location" FROM :lt_closest WHERE "sequence" = :lv_current_step
+                ),
+                "done" = CASE WHEN IFNULL( (
+                    SELECT MAX("sequence") 
+                        FROM "SPET_DIPLOMA"."spet.diploma.data::ctxCore.vTransportWaypoints"
+                        WHERE "transport" = :iv_transport
+                ), -2000000) = :lv_current_step THEN 1 ELSE 0 END
+            WHERE "id" = :iv_transport;
+            
+        -- get the schedule offset
+        SELECT SECONDS_BETWEEN(:lv_target_ts, "timestamp") / 60 INTO ev_offset
+            FROM "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eReading" WHERE "id" = :iv_reading;
+    ELSE
+        ev_offset = NULL;
+    END IF;
+    
+END

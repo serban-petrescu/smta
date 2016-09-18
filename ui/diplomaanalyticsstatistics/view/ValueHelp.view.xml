@@ -1,0 +1,59 @@
+<mvc:View controllerName="diploma.analytics.statistics.controller.ValueHelp"
+	xmlns:mvc="sap.ui.core.mvc" 
+    xmlns:core="sap.ui.core" 
+    xmlns:form="sap.ui.layout.form"
+	xmlns="sap.m">
+	<Dialog id="dlgValueHelp" 
+	    contentHeight="75%"
+		contentWidth="40rem" 
+		stretch="{device>/system/phone}"
+	    title="{parts: [{path: 'i18n>dlgValueHelpTitle'}, {path: 'view>/name'}], formatter: '.formatter.formatMessage'}">
+		<VBox>
+			<VBox  class="sapUiTinyMargin">
+			    <Label text="{i18n>lblValueHelpSelectionText}"/>
+	            <ScrollContainer width="100%" horizontal="true" vertical="false">
+	                <Tokenizer id="tknSelection" editable="true"/>
+	            </ScrollContainer>
+            </VBox>
+	        <Toolbar id="tlbMainSearch">
+	            <SearchField value="{view>/simple/value}"
+	                placeholder="{view>/simple/placeholder}"
+	                search="onSearch"/>
+	            <ToolbarSpacer/>
+	            <Button id="btnAdvancedSearch" 
+	            	visible="{view>/hasAdvanced}"
+	                type="Transparent"
+	                text="{= ${view>/advanced} ? ${i18n>hideAdvanced} : ${i18n>showAdvanced} }"
+	                press="onToggle"/>
+	        </Toolbar>
+	        
+	        <Panel visible="{view>/advanced}" class="sapUiNoContentPadding">
+	            <form:Form editable="true">
+					<form:layout>
+						<form:ResponsiveGridLayout
+							labelSpanL="3" labelSpanM="3"
+							emptySpanL="1" emptySpanM="1"
+							columnsL="1" columnsM="1" />
+					</form:layout>
+	            	<form:FormContainer formElements="{view>/complex}">
+	            		<form:FormElement label="{view>label}" >
+	            			<SearchField value="{view>value}"
+				                search="onSearch"/>
+	            		</form:FormElement>
+	            	</form:FormContainer>
+	            </form:Form>
+	        </Panel>
+	        <Table id="tblSearchMain"
+	            growing="true"
+	            columns="{view>/display}">
+	            <columns>
+	                <Column><Label text="{view>header}"/></Column>
+	            </columns>
+	        </Table>
+	    </VBox>
+	    <buttons>
+	        <Button text="{i18n>confirm}" press="onConfirm"/>
+	        <Button text="{i18n>cancel}" press="onCancel"/>
+	    </buttons>
+	</Dialog>
+</mvc:View>

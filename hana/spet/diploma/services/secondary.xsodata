@@ -1,0 +1,54 @@
+service namespace "msg.hcm.taxoenginetmp.petrescs.diploma.services" {
+    "spet.diploma.data::ctxCore.vLimitViolationsDaily" as "DailyViolations"
+        key("measure", "v_date")
+        delete forbidden
+        create forbidden
+        update forbidden;
+    
+    "spet.diploma.data::ctxCore.vLimitViolationsMonthly" as "MonthlyViolations"
+        key("measure", "v_date")
+        delete forbidden
+        create forbidden
+        update forbidden;
+    
+    "spet.diploma.data::ctxCore.vValuesDaily" as "DailyValues"
+        key("measure", "v_date")
+        delete forbidden
+        create forbidden
+        update forbidden;
+    
+    "spet.diploma.data::ctxCore.vLimitViolationsMonthly" as "MonthlyValues"
+        key("measure", "v_date")
+        delete forbidden
+        create forbidden
+        update forbidden;
+        
+    "spet.diploma.model::CV_SERIES_DELTA" as "DeltaValues"
+        key("transport", "measure", "start")
+        delete forbidden
+        create forbidden
+        update forbidden;
+        
+    "spet.diploma.data::ctxCore.eMeasure" as "Measures"
+        delete forbidden
+        create forbidden
+        update forbidden; 
+        
+    "spet.diploma.data::ctxCore.eTransport" as "Transports"
+        delete forbidden
+        create forbidden
+        update forbidden; 
+        
+    "spet.diploma.model::CV_EXPANDED_TRANSPORT" as "ExpandedTransports"
+        key("id")
+        navigates(
+            "TransportToExpanded"   as "Transport"
+        )
+        delete forbidden
+        create forbidden
+        update forbidden;
+        
+    association "TransportToExpanded" with referential constraint principal "Transports"("id") multiplicity "1"
+        dependent "ExpandedTransports"("id") multiplicity "1";
+
+}

@@ -1,0 +1,104 @@
+<mvc:View 
+    controllerName="diploma.admin.route.create.controller.Main"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:core="sap.ui.core"
+	xmlns:fb="sap.ui.comp.filterbar"
+    xmlns:layout="sap.ui.layout"
+	xmlns:form="sap.ui.layout.form"
+	xmlns="sap.m">
+	<App id="appRouteCreate">
+		<Page id="pagRouteCreate"
+		    title="{i18n>title}"
+			navButtonPress="onNavBack"
+			showNavButton="true">
+			<layout:DynamicSideContent id="dscMain" 
+			    containerQuery="true" 
+			    sideContentFallDown="BelowM" 
+			    sideContentPosition="Begin"
+			    breakpointChanged="onBreakpointChange">
+			    <layout:mainContent>
+					<core:HTML id="map" 
+					    content="&lt;div style=&quot;width:100%;height:100%&quot; /&gt;"/>
+				</layout:mainContent>
+    			<layout:sideContent>
+    				<Panel>
+    				    <Label text="{i18n>routeName}" />
+    				    <Input id="inpRouteName" value="{view>/routeName}" valueLiveUpdate="true" />
+    				    <List id="lstWaypoints"
+    				        items="{view>/waypoints}" 
+    				        mode="SingleSelectLeft" 
+    				        selectionChange="onListSelectionChange">
+    				        <headerToolbar>
+    				            <OverflowToolbar id="tlbWaypoints">
+    				                <Title text="{i18n>waypointsTitle}"/>
+    				                <ToolbarSpacer />
+    				                <OverflowToolbarButton id="btnWaypointRemove" 
+    				                    press="onRemoveWaypoint"
+    				                    text="{i18n>waypointRemove}"
+    				                    enabled="{view>/selected}"
+    				                    tooltip="{i18n>waypointRemoveTooltip}" 
+    				                    icon="sap-icon://delete"/>
+    				                <OverflowToolbarButton id="btnWaypointAdd" 
+    				                    press="onAddWaypoint"
+    				                    text="{i18n>waypointAdd}"
+    				                    enabled="{= 11 > ${view>/waypointCount} }"
+    				                    tooltip="{i18n>waypointAddTooltip}" 
+    				                    icon="sap-icon://add">
+                            			<layoutData>
+                            				<OverflowToolbarLayoutData priority="NeverOverflow" />
+                            			</layoutData>
+    				                </OverflowToolbarButton>
+    				                <OverflowToolbarButton id="btnWaypointUp" 
+    				                    press="onMoveWaypointUp"
+    				                    text="{i18n>waypointMoveUp}"
+    				                    enabled="{view>/selected}"
+    				                    tooltip="{i18n>waypointMoveUpTooltip}" 
+    				                    icon="sap-icon://navigation-up-arrow"/>
+    				                <OverflowToolbarButton id="btnWaypointDown" 
+    				                    press="onMoveWaypointDown"
+    				                    tooltip="{i18n>waypointMoveDownTooltip}"
+    				                    enabled="{view>/selected}"
+    				                    text="{i18n>waypointMoveDown}"
+    				                    icon="sap-icon://navigation-down-arrow"/>
+    				            </OverflowToolbar>
+    				        </headerToolbar>
+    				        <items>
+    				            <StandardListItem title="{view>name}"/>
+    				        </items>
+    				    </List>
+    				</Panel>
+    			</layout:sideContent>
+			</layout:DynamicSideContent>
+			
+			<footer>
+			    <Toolbar id="tlbMain">
+			        <Button id="btnManageLocations" 
+			            tooltip="{i18n>tooltipManageLocations}"
+			            text="{i18n>manageLocations}"
+			            press="openLocationDialog"/>
+			        <Button id="btnShowMap" 
+			            tooltip="{i18n>tooltipShowMap}" 
+			            text="{i18n>showMap}" 
+			            visible="{view>/toggleMapVisible}" 
+			            press="onShowMap"/>
+			        <Button id="btnShowDetails" 
+			            tooltip="{i18n>tooltipShowDetails}" 
+			            text="{i18n>showDetails}" 
+			            visible="{view>/toggleDetailsVisible}" 
+			            press="onShowDetails"/>
+			        <ToolbarSpacer />
+			        <Button id="btnSave" 
+			            tooltip="{i18n>tooltipSave}" 
+			            text="{i18n>save}" 
+			            type="Accept"
+			            visible="{= ${view>/waypointCount} > 1 &amp;&amp; ${view>/routeName} !== '' }" 
+			            press="onSaveRoute"/>
+			    </Toolbar>
+			</footer>
+		</Page>
+		<dependents>
+		    <core:Fragment fragmentName="diploma.admin.route.create.view.LocationValueHelp" type="XML" />
+		    <core:Fragment fragmentName="diploma.admin.route.create.view.LocationManagement" type="XML" />
+		</dependents>
+	</App>
+</mvc:View>

@@ -1,0 +1,54 @@
+<core:FragmentDefinition 
+    xmlns:core="sap.ui.core" 
+	xmlns:f="sap.ui.layout.form"
+    xmlns:form="sap.ui.layout.form"
+    xmlns="sap.m">
+
+	<Dialog id="dlgCreateSchedule" 
+	    contentHeight="75%"
+	    contentWidth="20rem"
+	    stretch="{device>/system/phone}"
+	    title="{i18n>createScheduleDialogTitle}">
+	    <f:Form
+			maxContainerCols="2"
+			editable="true">
+			<f:layout>
+			<f:ResponsiveGridLayout
+				labelSpanL="5" labelSpanM="5"
+				emptySpanL="1" emptySpanM="1"
+				columnsL="1" columnsM="1" />
+			</f:layout>
+			<f:FormContainer>
+				<f:FormElement label="{i18n>scheduleNameLabel}">
+					<Input id="inpCreateScheduleName"/>
+				</f:FormElement>
+				<f:FormElement label="{i18n>scheduleCommentLabel}">
+					<TextArea id="inpCreateScheduleComment" width="100%" rows="3"/>
+				</f:FormElement>
+		    </f:FormContainer>
+			<f:FormContainer id="frcCreateScheduleLegDurations" formElements="{
+				    path: 'Legs', 
+				    sorter: {path: 'sequence'}, 
+				    parameters: {expanded: 'FromLocation,ToLocation'}
+			    }">
+				<f:FormElement label="{FromLocation/name} - {ToLocation/name}">
+					<HBox>
+					    <Input type="Number">
+					        <layoutData> <FlexItemData growFactor="1" /> </layoutData>
+					    </Input>
+					    <Text text="{i18n>legDurationUnitMinutes}" class="sapUiTinyMarginBegin">
+							<layoutData> <FlexItemData growFactor="0" /> </layoutData>
+					    </Text>
+				    </HBox>
+				</f:FormElement>
+		    </f:FormContainer>
+        </f:Form>
+	    <beginButton>
+	        <Button text="{i18n>confirmButton}" press="onCreateScheduleConfirm"/>
+	    </beginButton>
+	    <endButton>
+	        <Button text="{i18n>cancelButton}" press="onCreateScheduleCancel"/>
+	    </endButton>
+	</Dialog>
+			
+</core:FragmentDefinition>

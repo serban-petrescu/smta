@@ -1,0 +1,73 @@
+<mvc:View height="100%" xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core" xmlns="sap.m"
+    controllerName="controllers.Main">
+    <Page title="{i18n>title}" showHeader="true"  height="100%" enableScrolling="true" id="pagMain">
+        <headerContent>
+            <Button icon="sap-icon://refresh" tooltip="{i18n>refresh}" press="onRefresh"/>
+        </headerContent>
+        <IconTabBar expandable="false" expanded="true" >
+            <items>
+                <IconTabFilter icon="sap-icon://settings">
+                    <List headerText="{i18n>settingsListTitle}" id="lstSettings">
+                        <InputListItem label="{i18n>labelInternetAccess}">
+                            <Switch type="AcceptReject" state="{/settings/internet/enabled}"
+                                enabled="{= ${/settings/internet/available} &amp;&amp; !${/started} }"/>
+                        </InputListItem>
+                        <InputListItem label="{i18n>labelDeviceName}">
+                            <Input enabled="{= ${/started} === false }" value="{/settings/name}"/>
+                        </InputListItem>
+                        <InputListItem label="{i18n>labelInterval}">
+                            <Input type="Number" width="5rem" value="{
+                                path: '/settings/interval',
+                                type: 'sap.ui.model.type.Integer',
+                                constraints: {minimum: 1}
+                            }" enabled="{= ${/started} === false }"/>
+                        </InputListItem>
+                    </List>
+                </IconTabFilter>
+                <IconTabFilter icon="sap-icon://temperature">
+                    <List delete="onDeleteSensor" mode="{= ${/started} ? 'None' : 'Delete' }"
+                        noDataText="{i18n>noSensors}" id="lstSensors"
+                        items="{path: '/settings/sensors', filters: [{path: 'enabled', operator: 'EQ', value1: true}]}">
+                        <headerToolbar>
+                            <Toolbar>
+                                <Title text="{i18n>sensorListTitle}"/>
+                                <ToolbarSpacer/>
+                                <Button enabled="{= ${/started} === false }" press="onResetSensors"
+                                    icon="sap-icon://undo" tooltip="{i18n>reset}"/>
+                            </Toolbar>
+                        </headerToolbar>
+                        <InputListItem label="{name}">
+                            <Input enabled="{= ${/started} === false }" value="{number}" width="5rem"
+                                type="Number" change="onSensorNumberChange" />
+                        </InputListItem>
+                    </List>
+                </IconTabFilter>
+                <IconTabFilter icon="sap-icon://database">
+                    <List items="{/files}" mode="SingleSelectLeft" id="lstFiles" noDataText="{i18n>noFiles}">
+                        <headerToolbar>
+                            <Toolbar>
+                                <Title text="{i18n>fileListTitle}"/>
+                                <ToolbarSpacer />
+                                <Button icon="sap-icon://delete" enabled="{= ${/started} === false }"
+                                    press="onDeleteFile"/>
+                                <Button icon="sap-icon://display" press="onDisplayFile"/>
+                                <Button icon="sap-icon://upload" enabled="{= ${/started} === false }"
+                                    press="onUploadFile"/>
+                            </Toolbar>
+                        </headerToolbar>
+                        <StandardListItem title="{name}"/>
+                    </List>
+                </IconTabFilter>
+            </items>
+        </IconTabBar>
+        <footer>
+            <Toolbar>
+                <ToolbarSpacer />
+                <Button type="Transparent" text="{i18n>start}" icon="sap-icon://begin" press="onStart"
+                    visible="{= ${/started} === false }"/>
+                <Button type="Transparent" text="{i18n>stop}" icon="sap-icon://stop" press="onStop"
+                    visible="{/started}"/>
+            </Toolbar>
+        </footer>
+    </Page>
+</mvc:View>

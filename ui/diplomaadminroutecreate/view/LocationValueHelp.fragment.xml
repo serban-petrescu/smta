@@ -1,0 +1,62 @@
+<core:FragmentDefinition 
+    xmlns:core="sap.ui.core" 
+    xmlns:form="sap.ui.layout.form"
+    xmlns="sap.m">
+	<Dialog id="vhdLocation"
+	    contentHeight="75%"
+		contentWidth="20rem" 
+		stretch="{device>/system/phone}"
+	    title="{i18n>locations}" >
+	    <VBox>
+	        <Toolbar id="tlbLocationMainSearch">
+	            <SearchField id="seaLocationNameSearch" search="onSearchLocationMain"/>
+	            <ToolbarSpacer/>
+	            <Button id="btnLocationAdvancedSearch" 
+	                type="Transparent"
+	                text="{= ${view>/locationAdvancedSearch} ? ${i18n>hideAdvanced} : ${i18n>showAdvanced} }"
+	                press="onToggleAdvancedSearch"/>
+	        </Toolbar>
+	        <Panel visible="{view>/locationAdvancedSearch}" class="sapUiNoContentPadding">
+	            <form:SimpleForm id="sfmAdvancedLocation"
+        			maxContainerCols="2"
+        			editable="true"
+        			layout="ResponsiveGridLayout"
+        			labelSpanL="4"
+        			labelSpanM="4"
+        			emptySpanL="0"
+        			emptySpanM="0"
+        			columnsL="2"
+        			columnsM="2"
+        			class="editableForm">
+        			<form:content>
+        			    <Label text="{i18n>locationCountry}"/>
+	                    <SearchField id="seaLocationCountrySearch" search="onSearchLocationMain"/>
+        			    <Label text="{i18n>locationRegion}"/>
+	                    <SearchField id="seaLocationRegionSearch" search="onSearchLocationMain"/>
+    			    </form:content>
+    		    </form:SimpleForm>
+	        </Panel>
+	        <Table id="tblLocationSearchMain"
+	            growing="true"
+	            items="{path: '/Locations', sorter: {path: 'name'}}">
+	            <columns>
+	                <Column><Label text="{i18n>locationName}"/></Column>
+	                <Column><Label text="{i18n>locationCountry}"/></Column>
+	                <Column><Label text="{i18n>locationRegion}"/></Column>
+	            </columns>
+	            <items>
+	                <ColumnListItem type="Active" press="onLocationAdded">
+	                    <cells>
+	                        <Text text="{name}"/>
+	                        <Text text="{country}"/>
+	                        <Text text="{region}"/>
+	                    </cells>
+	                </ColumnListItem>
+	            </items>
+	        </Table>
+	    </VBox>
+	    <endButton>
+	        <Button text="{i18n>cancel}" press="onLocationMainClose"/>
+	    </endButton>
+	</Dialog>
+</core:FragmentDefinition>

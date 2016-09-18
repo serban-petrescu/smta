@@ -1,0 +1,83 @@
+-------------------------------------------------------------------------------------------------------------------
+-- @date:           25.12.2015
+-- @component:      Analytics
+-------------------------------------------------------------------------------------------------------------------
+-- @description:
+-- Retrieves the values / timestamps for an equalized interval.
+-- @param {string}      iv_transport            The UUID of the transport.
+-- @param {string}      iv_measure              The UUID of the measure.
+-- @param {string}      iv_window_interval      The interval in the form: "INTERVAL number units"
+-- @param {timestamp}   iv_window_start         The start of the analytics window.
+-- @param {timestamp}   iv_window_end           The end of the analytics window.
+-- @param {timestamp}   iv_offset_seconds       The number of seconds to be added to each timestamp.
+-- @returns {table}                             The results.
+--  @column {decimal}   return.value            The value of a given point.
+--  @column {timestamp} return.timestamp        The time dimension.
+-------------------------------------------------------------------------------------------------------------------
+FUNCTION "SPET_DIPLOMA"."spet.diploma.procedures::equalizeValues" (
+        iv_transport        NVARCHAR(32),
+        iv_measure          NVARCHAR(32),
+        iv_window_interval  NVARCHAR(64),
+        iv_window_start     TIMESTAMP,
+        iv_window_end       TIMESTAMP,
+        iv_offset_seconds   INT DEFAULT 0
+    ) 
+	RETURNS TABLE(
+        "value"         DECIMAL(32, 16),
+        "timestamp"     TIMESTAMP 
+    )
+	LANGUAGE SQLSCRIPT
+	SQL SECURITY INVOKER AS
+BEGIN
+    DECLARE lv_min TIMESTAMP;
+    DECLARE lv_max TIMESTAMP;
+   
+    --select the relevant values + the bin (time interval rank) in which they belong 
+    lt_vals = SELECT DISTINCT "v"."value", ADD_SECONDS("r"."timestamp", :iv_offset_seconds) AS "timestamp", 
+        SERIES_PERIOD_TO_ELEMENT(ADD_SECONDS("r"."timestamp", :iv_offset_seconds), :iv_window_interval, 
+        :iv_window_start, :iv_window_end, ROUND_DOWN) AS "bin" FROM 
+        "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eValue" AS "v" INNER JOIN
+        "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eReading" AS "r" 
+        ON "v"."reading" = "r"."id" AND "r"."transport" = :iv_transport INNER JOIN 
+        "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eDeviceSensor" AS "d"
+        ON "v"."device" = "d"."device" AND "v"."sensor" = "d"."number" INNER JOIN
+        "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eSensorType" AS "s"
+        ON "d"."sensorType" = "s"."id" AND "s"."measure" = :iv_measure 
+        WHERE ADD_SECONDS("r"."timestamp", :iv_offset_seconds) BETWEEN :iv_window_start AND :iv_window_end;
+    
+    -- get the average value for each bin
+    lt_avgs = SELECT AVG("value") AS "value", ADD_SECONDS(TO_TIMESTAMP('1970-01-01 00:00:00'), 
+        AVG(SECONDS_BETWEEN(TO_TIMESTAMP('1970-01-01 00:00:00'), "timestamp"))) AS "timestamp", "bin" FROM :lt_vals GROUP BY "bin";
+    
+    -- get the max / min timestamp from the values     
+    SELECT MAX("timestamp") INTO lv_max FROM :lt_vals;
+    SELECT MIN("timestamp") INTO lv_min FROM :lt_vals;
+    
+    -- generate the interval table (only between the min and max timestamps)
+    lt_period = SELECT "ELEMENT_NUMBER" AS "number", "GENERATED_PERIOD_START" AS "start", "GENERATED_PERIOD_END" AS "end",
+        ADD_SECONDS("GENERATED_PERIOD_START", SECONDS_BETWEEN("GENERATED_PERIOD_START", "GENERATED_PERIOD_END") / 2) AS "middle"
+        FROM SERIES_GENERATE_TIMESTAMP (:iv_window_interval, :iv_window_start, :iv_window_end) 
+        WHERE "GENERATED_PERIOD_END" > :lv_min AND "GENERATED_PERIOD_START" < :lv_max;
+    
+    -- compute an interpolated value (for the middle of each interval) for intervals which have no data point inside
+    -- lt)fin will contain all the intervals with eactly one value and timestamp inside the interval
+    lt_fin = SELECT "PR"."value" + SECONDS_BETWEEN("PR"."timestamp", "P"."middle") * ("NX"."value" - "PR"."value") /
+        SECONDS_BETWEEN("PR"."timestamp", "NX"."timestamp") AS "value",  "P"."middle" AS "timestamp", "M"."number" AS "bin" 
+        FROM ( 
+            SELECT * FROM (
+                SELECT "P"."number", 
+                    (SELECT MAX("bin") FROM :lt_vals WHERE "bin" < "P"."number") AS "prev", 
+                    (SELECT MIN("bin") FROM :lt_vals WHERE "bin" > "P"."number") AS "next" FROM (
+                        SELECT DISTINCT "number" FROM :lt_period EXCEPT SELECT DISTINCT "bin" FROM :lt_vals
+                    ) AS "D" INNER JOIN :lt_period AS "P" ON "D"."number" = "P"."number"
+            )  WHERE (NOT "prev" IS NULL) AND (NOT "next" IS NULL)
+        ) AS "M" INNER JOIN :lt_avgs AS "PR" ON "M"."prev" = "PR"."bin" INNER JOIN :lt_avgs AS "NX" ON "M"."next" = "NX"."bin"
+        INNER JOIN :lt_period AS "P" ON "M"."number" = "P"."number"
+    UNION SELECT * FROM :lt_avgs;    
+    
+    -- do the interpolation for the end of each interval
+    RETURN SELECT "C"."value" + SECONDS_BETWEEN("C"."timestamp", "P"."end") * ("N"."value" - "C"."value") / 
+        SECONDS_BETWEEN("C"."timestamp", "N"."timestamp") AS "value", "P"."end" AS "timestamp"
+        FROM :lt_fin AS "C" INNER JOIN :lt_fin AS "N" ON "C"."bin" + 1 = "N"."bin" 
+        INNER JOIN :lt_period AS "P" ON "P"."number" = "C"."bin";   
+END;

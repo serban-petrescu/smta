@@ -1,0 +1,9 @@
+#
+#Sun Sep 18 15:00:54 UTC 2016
+Name=INET_HTTP_GOOGLE_MAPS_API
+URL=https\://maps.googleapis.com/maps/api/
+ProxyType=Internet
+Type=HTTP
+CloudConnectorVersion=2
+Authentication=NoAuthentication
+Description=Google Maps API

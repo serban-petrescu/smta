@@ -1,0 +1,25 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core">
+	<Dialog title="{i18n>limitTitle}" id="dialogLimit" contentWidth="20rem" contentHeight="20em" stretch="{device>/system/phone}" >
+		<content><Panel>
+			<Label text="{i18n>measure}"/>
+			<Select width="100%" selectedKey="{detailView>/limit/measure}" items="{/Measures}">
+				<core:Item key="{id}" text="{
+					parts: [{path: 'i18n>measureName'}, {path: 'name'}, {path: 'unit'}], 
+					formatter: '.formatter.measureText'
+				}"/>
+			</Select>
+			<Label text="{i18n>limitType}"/>
+			<Select width="100%" selectedKey="{detailView>/limit/type}" items="{detailView>/limitTypes}">
+				<core:Item key="{detailView>key}" text="{detailView>name}"/>
+			</Select>
+			<Label text="{i18n>lowerBound}" visible="{= ${detailView>/limit/type} !== '0' }"/>
+			<Input type="Number" value="{detailView>/limit/lower}" visible="{= ${detailView>/limit/type} !== '0' }"/>
+			<Label text="{i18n>upperBound}" visible="{= ${detailView>/limit/type} !== '1' }"/>
+			<Input type="Number" value="{detailView>/limit/upper}" visible="{= ${detailView>/limit/type} !== '1' }"/>
+		</Panel></content>
+		<beginButton><Button text="{i18n>create}" press="onNewLimit"/></beginButton>
+		<endButton><Button text="{i18n>cancel}" press="closeLimitDialog"/></endButton>
+	</Dialog>
+</core:FragmentDefinition>

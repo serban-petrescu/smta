@@ -1,0 +1,26 @@
+-------------------------------------------------------------------------------------------------------------------
+-- @date:           10.04.2016
+-- @component:      Core
+-------------------------------------------------------------------------------------------------------------------
+-- @description:
+-- Wraps the {@link SYS.AFLLANG_WRAPPER_PROCEDURE_CREATE} in a procedure within the main schema.
+-- This is needed to enable the usage of temporary tables when calling the procedure from JS.
+-- Has the same parameters as the above mentioned schema.
+-------------------------------------------------------------------------------------------------------------------
+PROCEDURE "SPET_DIPLOMA"."spet.diploma.procedures::aflWrapperCreate" (
+    in IV_AREA_NAME      NVARCHAR(256),
+    in IV_FUNCTION_NAME  NVARCHAR(256),
+    in IV_SCHEMA_NAME    NVARCHAR(256),
+    in IV_PROCEDURE_NAME NVARCHAR(256),
+    in IT_PARAMETERS     "SPET_DIPLOMA"."spet.diploma.data::ctxPal.stySignature"
+)
+   LANGUAGE SQLSCRIPT
+   SQL SECURITY INVOKER
+   DEFAULT SCHEMA "SPET_DIPLOMA" AS
+BEGIN 
+    
+    CALL SYS.AFLLANG_WRAPPER_PROCEDURE_CREATE(
+        :IV_AREA_NAME, :IV_FUNCTION_NAME, :IV_SCHEMA_NAME, :IV_PROCEDURE_NAME, :IT_PARAMETERS
+    );
+    
+END

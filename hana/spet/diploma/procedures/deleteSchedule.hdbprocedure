@@ -1,0 +1,40 @@
+-------------------------------------------------------------------------------------------------------------------
+-- @date:           23.12.2015
+-- @component:      Core
+-------------------------------------------------------------------------------------------------------------------
+-- @description:
+-- Deletes a device and all associated entities.
+-- @param {table}       it_old          - The entries that need to be deleted.
+--  @column {string}    et_errors       - Error table.
+-------------------------------------------------------------------------------------------------------------------
+PROCEDURE "SPET_DIPLOMA"."spet.diploma.procedures::deleteSchedule" ( 
+       IN   it_old      "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eSchedule",
+       OUT  et_errors   TABLE (
+           "HTTP_STATUS_CODE" INT,
+           "ERROR_MESSAGE" NVARCHAR(100),
+           "DETAIL" NVARCHAR(100)
+       )
+   )
+   LANGUAGE SQLSCRIPT
+   SQL SECURITY INVOKER AS
+BEGIN
+     DECLARE lv_count INTEGER;
+     
+    SELECT COUNT( * ) INTO lv_count 
+        FROM "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eTransport" AS "T"
+        WHERE EXISTS (SELECT * FROM :it_old WHERE :it_old."id" = "T"."schedule" );
+    
+    IF :lv_count > 0 THEN
+        et_errors = SELECT 400 AS "HTTP_STATUS_CODE", 
+            'Invalid Request' AS "ERROR_MESSAGE", 
+            'Cannot delete schedule because it is already assiged to some transports.' AS "DETAIL" FROM DUMMY;
+    ELSE
+        DELETE FROM "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eLegDuration" AS "S"
+            WHERE EXISTS (SELECT * FROM :it_old WHERE :it_old."id" = "S"."schedule" );
+        
+        DELETE FROM "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eSchedule" AS "S"
+            WHERE EXISTS (SELECT * FROM :it_old WHERE :it_old."id" = "S"."id" );
+        
+        et_errors = SELECT 0 AS "HTTP_STATUS_CODE", '' AS "ERROR_MESSAGE", '' AS "DETAIL" FROM DUMMY WHERE 1 = 0;
+    END IF;
+END

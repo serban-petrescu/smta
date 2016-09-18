@@ -1,0 +1,4 @@
+<mvc:View busy="{appView>/busy}" busyIndicatorDelay="{appView>/delay}" controllerName="diploma.admin.sensor.controller.App"
+	displayBlock="true" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m">
+	<SplitApp id="idAppControl"/>
+</mvc:View>

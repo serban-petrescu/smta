@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Calculation:scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Calculation="http://www.sap.com/ndb/BiModelCalculation.ecore" schemaVersion="2.3" id="CV_POSITIONS_BY_DATE" applyPrivilegeType="NONE" checkAnalyticPrivileges="false" defaultClient="$$client$$" defaultLanguage="$$language$$" hierarchiesSQLEnabled="false" translationRelevant="true" visibility="internal" calculationScenarioType="SCRIPT_BASED" dataCategory="DEFAULT" enforceSqlExecution="false" executionSemantic="UNDEFINED" scriptParametersCaseSensitive="true">
+  <descriptions defaultDescription="The positions for a given date."/>
+  <localVariables>
+    <variable id="IV_DATE" parameter="true">
+      <descriptions defaultDescription="IV_DATE"/>
+      <variableProperties datatype="TIMESTAMP" mandatory="false">
+        <valueDomain type="empty"/>
+        <selection multiLine="false" type="SingleValue"/>
+        <defaultExpression>now()</defaultExpression>
+      </variableProperties>
+    </variable>
+  </localVariables>
+  <variableMappings/>
+  <dataSources/>
+  <calculationViews>
+    <calculationView xsi:type="Calculation:SqlScriptView" id="Script_View">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute datatype="NVARCHAR" id="id" length="32"/>
+        <viewAttribute datatype="NVARCHAR" id="detail" length="32"/>
+        <viewAttribute datatype="INTEGER" id="type"/>
+        <viewAttribute datatype="NVARCHAR" id="label" length="128"/>
+        <viewAttribute datatype="DOUBLE" id="latitude"/>
+        <viewAttribute datatype="DOUBLE" id="longitude"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <localVariable>#IV_DATE</localVariable>
+      <definition>/********* Begin Procedure Script ************/ 
+-------------------------------------------------------------------------------------------------------------------
+-- @date:           20.05.2016
+-- @component:      Core
+-------------------------------------------------------------------------------------------------------------------
+-- @description:
+-- Get all the positions (locations / transports) for a given date.
+-------------------------------------------------------------------------------------------------------------------
+BEGIN 
+   
+    lt_active_transports = SELECT &quot;transport&quot; AS &quot;id&quot;
+        FROM &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eReading&quot;
+        GROUP BY &quot;transport&quot; 
+        HAVING MIN(&quot;timestamp&quot;) &lt; :iv_date AND MAX(&quot;timestamp&quot;) > ADD_SECONDS(:iv_date, -3600);
+    
+    lt_latest_readings = SELECT &quot;R1&quot;.&quot;id&quot;, &quot;R1&quot;.&quot;position&quot;, &quot;R1&quot;.&quot;timestamp&quot;, &quot;T&quot;.&quot;id&quot; as &quot;transport&quot;
+        FROM :lt_active_transports AS &quot;T&quot;
+        INNER JOIN &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eReading&quot; AS &quot;R1&quot;
+        ON &quot;T&quot;.&quot;id&quot; = &quot;R1&quot;.&quot;transport&quot; AND &quot;R1&quot;.&quot;timestamp&quot; &lt; :iv_date
+        LEFT JOIN &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eReading&quot; AS &quot;R2&quot;
+        ON &quot;T&quot;.&quot;id&quot; = &quot;R2&quot;.&quot;transport&quot; AND &quot;R2&quot;.&quot;timestamp&quot; &lt; :iv_date AND &quot;R2&quot;.&quot;timestamp&quot; > &quot;R1&quot;.&quot;timestamp&quot;
+        WHERE &quot;R2&quot;.&quot;timestamp&quot; IS NULL;
+    
+    lt_active_routes = SELECT DISTINCT &quot;tFrom&quot;, &quot;tTo&quot; FROM :lt_active_transports AS &quot;A&quot;
+        INNER JOIN &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eTransport&quot; AS &quot;T&quot;
+        ON &quot;A&quot;.&quot;id&quot; = &quot;T&quot;.&quot;id&quot;
+        INNER JOIN &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eRoute&quot; AS &quot;R&quot;
+        ON &quot;T&quot;.&quot;route&quot; = &quot;R&quot;.&quot;id&quot;;
+    
+    var_out = SELECT &quot;R&quot;.&quot;transport&quot; AS &quot;id&quot;, &quot;R&quot;.&quot;id&quot; AS &quot;detail&quot;, 2 as &quot;type&quot;, &quot;T&quot;.&quot;description&quot; AS &quot;label&quot;,
+        &quot;R&quot;.&quot;position&quot;.ST_Y() as &quot;latitude&quot;, &quot;R&quot;.&quot;position&quot;.ST_X() as &quot;longitude&quot;
+        FROM :lt_latest_readings AS &quot;R&quot;
+        INNER JOIN &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eTransport&quot; AS &quot;T&quot;
+        ON &quot;R&quot;.&quot;transport&quot; = &quot;T&quot;.&quot;id&quot;
+        UNION ALL
+        SELECT &quot;L&quot;.&quot;id&quot;, &quot;L&quot;.&quot;id&quot; as &quot;detail&quot;,
+            CASE WHEN EXISTS (SELECT * FROM :lt_active_routes WHERE &quot;tFrom&quot; = &quot;L&quot;.&quot;id&quot; OR &quot;tTo&quot; = &quot;L&quot;.&quot;id&quot;)
+                THEN 1
+                ELSE 0
+            END as &quot;type&quot;, 
+            &quot;L&quot;.&quot;name&quot; AS &quot;label&quot;, &quot;L&quot;.&quot;position&quot;.ST_Y() as &quot;latitude&quot;, &quot;L&quot;.&quot;position&quot;.ST_X() as &quot;longitude&quot;
+        FROM &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eLocation&quot; AS &quot;L&quot;;
+    
+END /********* End Procedure Script ************/</definition>
+    </calculationView>
+  </calculationViews>
+  <logicalModel id="Script_View">
+    <descriptions/>
+    <attributes>
+      <attribute id="id" order="1">
+        <descriptions/>
+        <keyMapping columnObjectName="Script_View" columnName="id"/>
+      </attribute>
+      <attribute id="detail" order="2">
+        <descriptions/>
+        <keyMapping columnObjectName="Script_View" columnName="detail"/>
+      </attribute>
+      <attribute id="type" order="3">
+        <descriptions/>
+        <keyMapping columnObjectName="Script_View" columnName="type"/>
+      </attribute>
+      <attribute id="label" order="4">
+        <descriptions/>
+        <keyMapping columnObjectName="Script_View" columnName="label"/>
+      </attribute>
+      <attribute id="latitude" order="5">
+        <descriptions/>
+        <keyMapping columnObjectName="Script_View" columnName="latitude"/>
+      </attribute>
+      <attribute id="longitude" order="6">
+        <descriptions/>
+        <keyMapping columnObjectName="Script_View" columnName="longitude"/>
+      </attribute>
+    </attributes>
+    <calculatedAttributes/>
+    <privateDataFoundation>
+      <tableProxies/>
+      <joins/>
+      <layout>
+        <shapes/>
+      </layout>
+    </privateDataFoundation>
+    <baseMeasures/>
+    <calculatedMeasures/>
+    <restrictedMeasures/>
+    <localDimensions/>
+  </logicalModel>
+  <layout>
+    <shapes>
+      <shape modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
+        <upperLeftCorner x="40" y="85"/>
+      </shape>
+    </shapes>
+  </layout>
+</Calculation:scenario>

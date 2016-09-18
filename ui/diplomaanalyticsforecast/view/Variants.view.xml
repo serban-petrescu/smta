@@ -1,0 +1,28 @@
+<mvc:View controllerName="diploma.analytics.forecast.controller.Variants"
+	xmlns:mvc="sap.ui.core.mvc" 
+	xmlns="sap.m">
+	
+	<Dialog
+		id="dlgVariants"
+		contentHeight="20rem"
+		contentWidth="10rem"
+		stretch="{device>/system/phone}"
+		title="{i18n>dlgVariantsTitle}"
+		class="sapUiPopupWithPadding" >
+		
+		<List mode="SingleSelectLeft" items="{path: 'view>/variants', sorter: {path: 'view>name'}}" id="lstVariants">
+			<CustomListItem>
+				<Input width="100%" value="{view>name}"/>
+			</CustomListItem>
+		</List>
+		
+		<buttons>
+			<Button icon="sap-icon://save" tooltip="{i18n>btnSaveTooltip}" press="onSave" />
+			<Button icon="sap-icon://open-folder" tooltip="{i18n>btnLoadTooltip}" press="onLoad" />
+			<Button icon="sap-icon://delete" tooltip="{i18n>btnDeleteTooltip}" press="onDelete" />
+			<Button text="{i18n>btnCloseText}" tooltip="{i18n>btnCloseTooltip}" press="onClose" />
+		</buttons>
+		
+	</Dialog>
+	
+</mvc:View>

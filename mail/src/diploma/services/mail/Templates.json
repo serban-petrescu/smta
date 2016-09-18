@@ -1,0 +1,10 @@
+[
+	{
+		"class":	"diploma.services.mail.template.Simple",
+		"name":		"simple"
+	},
+	{
+		"class":	"diploma.services.mail.template.LimitNotification",
+		"name":		"limit"
+	}
+]

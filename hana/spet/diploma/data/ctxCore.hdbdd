@@ -1,0 +1,355 @@
+namespace spet.diploma.data;
+@Schema : 'SPET_DIPLOMA'
+context ctxCore {
+     
+    type atyUUID        : String(32);
+    type atyName        : String(64);
+    type atyDescription : String(128);
+    
+    type styUUID {
+        id              : atyUUID;
+    };
+
+    type styTransportValue{
+        transport       : atyUUID;
+        value           : Decimal(32, 16);
+        timestamp       : UTCTimestamp;
+    };
+
+    type styODataRoute {
+        id          : atyUUID;
+        name        : atyName;
+        tFrom       : atyUUID;
+        tTo         : atyUUID;
+    };
+    
+    @Catalog:
+    { 
+        tableType : #COLUMN,
+        index : [ { name: 'NameIndex', order: #ASC, unique: true,  elementNames: ['name'] } ]
+    }
+    entity eDevice {
+        key id          : atyUUID;
+            name        : atyName;
+            description : atyDescription;
+            active      : hana.TINYINT;
+            transport   : atyUUID;
+            toTransport : Association[ 1 ] to eTransport on toTransport.id = transport;
+            toSensors   : Association[ * ] to eDeviceSensor on toSensors.device = id;
+    };
+    
+    @Catalog.tableType: #COLUMN 
+    entity eDeviceSensor {
+        key device      : atyUUID;
+        key number      : Integer;
+            sensorType  : atyUUID;
+            toDevice    : Association[ 1 ] to eDevice on toDevice.id = device;
+            toType      : Association[ 1 ] to eSensorType on toType.id = sensorType;
+    };
+    
+    @Catalog:
+    { 
+        tableType : #COLUMN,
+        index : [ { name: 'NameIndex', order: #ASC, unique: true,  elementNames: ['name'] } ]
+    } 
+    entity eSensorType {
+        key id          : atyUUID;
+            name        : atyName;
+            description : atyDescription;
+            measure     : atyUUID;
+            conversion  : String(128);
+            virtual     : hana.TINYINT default 0;
+            toMeasure   : Association[ 1 ] to eMeasure on toMeasure.id = measure;
+    };
+    
+    @Catalog.tableType: #COLUMN 
+    entity eMeasure {
+        key id          : atyUUID;
+            name        : atyName;
+            description : atyDescription;
+            unit        : String(32);
+    };
+    
+    @Catalog.tableType: #COLUMN 
+    entity eReading {
+        key id          : atyUUID;
+            transport   : atyUUID; 
+            position    : hana.ST_POINT(1000004326);
+            timestamp   : UTCTimestamp;
+            toTransport : Association[ 1 ] to eTransport on toTransport.id = transport;
+    };
+    
+    @Catalog.tableType: #COLUMN 
+    entity eValue {
+        key reading     : atyUUID;
+        key device      : atyUUID;
+        key sensor      : Integer;
+            value       : Decimal(32, 16);
+            toReading   : Association[ 1 ] to eReading on toReading.id = reading;
+            toDevice    : Association[ 1 ] to eDevice on toDevice.id = device;
+            toSensor    : Association[ 1 ] to eDeviceSensor 
+                on toSensor.device = device and toSensor.number = sensor;
+    };
+    
+    @Catalog:
+    { 
+        tableType : #COLUMN,
+        index : [ { name: 'NameIndex', order: #ASC, unique: true,  elementNames: ['name'] } ]
+    } 
+    entity eLocation {
+        key id          : atyUUID;
+            name        : atyName;
+            position    : hana.ST_POINT(1000004326);
+            country     : atyName;
+            region      : atyName;
+    };
+    
+    @Catalog.tableType: #COLUMN 
+    entity eTransport {
+        key id          : atyUUID; 
+            description : atyDescription;
+            tWhen       : UTCTimestamp;
+            route       : atyUUID;
+            schedule    : atyUUID;
+            returning   : hana.TINYINT default 0;
+            lastLocation: atyUUID;
+            lastWhen    : UTCTimestamp;
+            done        : hana.TINYINT default 0;
+            toRoute     : Association[ 1 ] to eRoute on toRoute.id = route;
+            toSchedule  : Association[ 1 ] to eSchedule on toSchedule.id = schedule;
+            toLimits    : Association[ * ] to eLimit on toLimits.transport = id;
+            toReadings	: Association[ * ] to eReading on toReadings.transport = id;
+    };
+    
+    @Catalog.tableType: #COLUMN 
+    entity eLimit {
+        key transport   : atyUUID;
+        key measure     : atyUUID;
+            lowerBound  : Decimal(32, 16);
+            upperBound  : Decimal(32, 16);
+            notified    : hana.TINYINT;
+            toTransport : Association[ 1 ] to eTransport on toTransport.id = transport;
+            toMeasure   : Association[ 1 ] to eMeasure on toMeasure.id = measure;
+    };
+    
+    @Catalog:
+    { 
+        tableType : #COLUMN,
+        index : [ { name: 'NameIndex', order: #ASC, unique: true,  elementNames: ['name'] } ]
+    }
+    entity eRoute {
+        key id          : atyUUID;
+            name        : atyName;
+            tFrom       : atyUUID;
+            tTo         : atyUUID;
+            route       : hana.ST_GEOMETRY(1000004326);
+            toTransports: Association[ * ] to eTransport on toTransports.route = id;
+            toLocationFrom: Association[ 1 ] to eLocation on toLocationFrom.id = tFrom;
+            toLocationTo: Association[ 1 ] to eLocation on toLocationTo.id = tTo;
+    };
+    
+    @Catalog.tableType: #COLUMN 
+    entity eRouteLeg {
+        key route       : atyUUID;
+        key sequence    : Integer;
+            tFrom       : atyUUID;
+            tTo         : atyUUID;
+            toRoute     : Association[ 1 ] to eRoute on toRoute.id = route;
+    };
+    
+    @Catalog:
+    { 
+        tableType : #COLUMN,
+        index : [ { name: 'NameIndex', order: #ASC, unique: true,  elementNames: ['route', 'name'] } ]
+    }
+    entity eSchedule {
+        key id          : atyUUID;
+            route       : atyUUID;
+            name        : atyName;
+            comment     : atyDescription;
+            toRoute     : Association[ 1 ] to eRoute on toRoute.id = route;
+    };
+    
+    @Catalog.tableType: #COLUMN 
+    entity eLegDuration {
+        key schedule    : atyUUID;
+        key route       : atyUUID;
+        key sequence    : Integer;
+            duration    : Integer;
+            toSchedule  : Association[ 1 ] to eSchedule on toSchedule.id = schedule;
+            toRouteLeg  : Association[ 1 ] to eRouteLeg on 
+                            toRouteLeg.route = route and toRouteLeg.sequence = sequence;
+    };
+    
+    @Catalog.tableType: #COLUMN 
+    entity eOrganization {
+        key id          : atyUUID;
+            name        : atyName;
+    };
+    
+    @Catalog:
+    { 
+        tableType : #COLUMN,
+        index : [ { name: 'EmailIndex', order: #ASC, unique: true,  elementNames: ['email'] } ]
+    }
+    entity ePerson {
+        key id          : atyUUID;
+            name        : atyName;
+            email       : String(64);
+            organization: atyUUID;
+            defaultRole : atyUUID;
+            toOrganization: Association[ 1 ] to eOrganization on toOrganization.id = organization;
+            toDefaultRole: Association[ 1 ] to eRole on toDefaultRole.id = defaultRole;
+    };
+    
+    @Catalog:
+    { 
+        tableType : #COLUMN,
+        index : [ { name: 'NameIndex', order: #ASC, unique: true,  elementNames: ['name'] } ]
+    }
+    entity eRole {
+        key id          : atyUUID;
+            name        : atyName;
+            contact     : hana.TINYINT;
+    };
+    
+    @Catalog.tableType: #COLUMN 
+    entity eInvolvement {
+        key transport   : atyUUID;
+        key person      : atyUUID;
+        key role        : atyUUID;
+            toTransport : Association[ 1 ] to eTransport on toTransport.id = transport;
+            toPerson    : Association[ 1 ] to ePerson on toPerson.id = person;
+            toRole      : Association[ 1 ] to eRole on toRole.id = role;
+    };
+    
+    view vTransportActivePeriods as SELECT from eTransport{
+    	id,
+    	MIN(eTransport.toReadings.timestamp) as startTimestamp,
+    	MAX(eTransport.toReadings.timestamp) as endTimestamp 
+    } GROUP BY id;
+    
+	view vTransportMeasures as SELECT from eValue DISTINCT{
+		toReading.transport,
+		toSensor.toType.measure
+	};
+	
+	view vExpandedLocation as SELECT from eLocation{
+		id,
+        name,
+        position.ST_Y() as latitude,
+        position.ST_X() as longitude
+	};
+    
+    view vRouteWaypoints as SELECT from eRoute {
+        eRoute.id               as route,
+        eRoute.tFrom            as waypoint,
+        0                       as sequence
+    } union all SELECT from eRouteLeg {
+        eRouteLeg.route         as route,
+        eRouteLeg.tTo           as waypoint,
+        eRouteLeg.sequence + 1  as sequence
+    };
+    
+    view vTransportWaypoints as SELECT from eRoute {
+        eRoute.toTransports.id  as transport,
+        eRoute.tFrom            as waypoint,
+        0                       as sequence
+    } union all SELECT from eRouteLeg {
+        eRouteLeg.toRoute.toTransports.id as transport,
+        eRouteLeg.tTo           as waypoint,
+        CASE WHEN eRouteLeg.toRoute.toTransports.returning = 0 THEN
+            eRouteLeg.sequence + 1
+        ELSE
+            -eRouteLeg.sequence - 1  
+        END                     as sequence
+    };
+    
+    view vLocationTransports as SELECT from eTransport {
+        eTransport.toRoute.tTo as location,
+        eTransport.id          as transport,
+        0                      as direction
+    } union all SELECT from eTransport {
+        eTransport.toRoute.tFrom as location,
+        eTransport.id          as transport,
+        1                      as direction
+    };
+    
+    view vMeasuredValues as SELECT from eValue as V {
+        V.toSensor.toType.measure as measure,
+        V.toReading.transport     as transport,
+        V.value                   as value,
+        V.toReading.position      as position,
+        V.toReading.timestamp     as timestamp
+    };
+    
+    view vValuesBase as SELECT from eValue as V{
+        V.value                             as value,
+        V.toSensor.toType.measure           as measure,
+        YEAR(V.toReading.timestamp)         as v_year,
+        MONTH(V.toReading.timestamp)        as v_month,
+        DAYOFMONTH(V.toReading.timestamp)   as v_day
+    } WHERE V.toReading.timestamp IS NOT NULL;
+    
+    view vValuesDaily as SELECT from vValuesBase as V {
+        AVG(V.value)                        as value,
+        V.measure                           as measure,
+        ADD_YEARS(ADD_MONTHS(ADD_DAYS(TO_DATE('2000-01-01'), V.v_day - 1), V.v_month - 1), V.v_year - 2000) 
+                                            as v_date
+    } GROUP BY V.measure, V.v_year, V.v_month, V.v_day;
+    
+    view vValuesMonthly as SELECT from vValuesBase as V {
+        AVG(V.value)                        as value,
+        V.measure                           as measure,
+        ADD_YEARS(ADD_MONTHS(TO_DATE('2000-01-01'), V.v_month - 1), V.v_year - 2000) 
+                                            as v_date
+    } GROUP BY V.measure, V.v_year, V.v_month;
+    
+    view vLimitViolationsHelper as SELECT from eValue as V {
+        V.toReading.transport     as transport,
+        V.toSensor.toType.measure as measure,
+        V.value                   as value,
+        V.toReading.timestamp     as timestamp,
+        V.toReading.toTransport.toLimits.{
+            measure               as limitMeasure,
+            lowerBound            as lowerLimit,
+            upperBound            as upperLimit
+        }
+    };
+    
+    view vLimitViolationsBase as SELECT from vLimitViolationsHelper as V {
+        V.transport                 as transport,
+        V.measure                   as measure,
+        V.value                     as value,
+        YEAR(V.timestamp)           as v_year,
+        MONTH(V.timestamp)          as v_month,
+        DAYOFMONTH(V.timestamp)     as v_day,
+        V.lowerLimit                as lowerLimit,
+        V.upperLimit                as upperLimit,
+        CASE WHEN (V.lowerLimit IS NOT NULL AND V.lowerLimit > V.value) THEN
+            V.lowerLimit - V.value ELSE 0 
+        END + CASE WHEN (V.upperLimit IS NOT NULL AND V.upperLimit < V.value) THEN
+            V.value - V.upperLimit ELSE 0
+        END                         as offset
+    } WHERE V.limitMeasure = V.measure AND V.timestamp IS NOT NULL
+        AND ((V.lowerLimit IS NOT NULL AND V.lowerLimit > V.value) 
+        OR (V.upperLimit IS NOT NULL AND V.upperLimit < V.value));
+        
+    view vLimitViolationsDaily as SELECT from vLimitViolationsBase AS V {
+        V.measure                   as measure,
+        COUNT(V.value)              as v_count,
+        AVG(V.offset)               as offset,
+        ADD_YEARS(ADD_MONTHS(ADD_DAYS(TO_DATE('2000-01-01'), V.v_day - 1), V.v_month - 1), V.v_year - 2000) 
+                                    as v_date
+    } GROUP BY V.measure, V.v_year, V.v_month, V.v_day;
+    
+    view vLimitViolationsMonthly as SELECT from vLimitViolationsBase AS V {
+        V.measure                   as measure,
+        COUNT(V.value)              as v_count,
+        AVG(V.offset)               as offset,
+        ADD_YEARS(ADD_MONTHS(TO_DATE('2000-01-01'), V.v_month - 1), V.v_year - 2000) 
+                                    as v_date
+    } GROUP BY V.measure, V.v_year, V.v_month;
+    
+    
+}

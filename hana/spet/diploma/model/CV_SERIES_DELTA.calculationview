@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Calculation:scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Calculation="http://www.sap.com/ndb/BiModelCalculation.ecore" schemaVersion="2.3" id="CV_SERIES_DELTA" applyPrivilegeType="NONE" checkAnalyticPrivileges="false" defaultClient="$$client$$" defaultLanguage="$$language$$" hierarchiesSQLEnabled="false" translationRelevant="true" visibility="internal" calculationScenarioType="SCRIPT_BASED" dataCategory="DEFAULT" enforceSqlExecution="false" executionSemantic="UNDEFINED" runWithInvokerPrivileges="true" scriptParametersCaseSensitive="true">
+  <descriptions defaultDescription="CV_SERIES_DELTA"/>
+  <localVariables/>
+  <variableMappings/>
+  <dataSources/>
+  <calculationViews>
+    <calculationView xsi:type="Calculation:SqlScriptView" id="Script_View">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute datatype="NVARCHAR" id="transport" length="32"/>
+        <viewAttribute datatype="NVARCHAR" id="measure" length="32"/>
+        <viewAttribute datatype="DECIMAL" id="delta" length="32" scale="16"/>
+        <viewAttribute datatype="DECIMAL" id="deltaPosition" length="32" scale="16"/>
+        <viewAttribute datatype="TIMESTAMP" id="start"/>
+        <viewAttribute datatype="TIMESTAMP" id="end"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <definition>/********* Begin Procedure Script ************/ 
+-------------------------------------------------------------------------------------------------------------------
+-- @date:           10.04.2016
+-- @component:      Core
+-------------------------------------------------------------------------------------------------------------------
+-- @description:
+-- Gets the &quot;moving delta&quot; (differentiation) of a series.
+-------------------------------------------------------------------------------------------------------------------
+BEGIN 
+    lt_readings = SELECT ROW_NUMBER() OVER (PARTITION BY &quot;transport&quot; ORDER BY &quot;timestamp&quot;) AS &quot;index&quot;,
+        &quot;transport&quot;, &quot;id&quot; AS &quot;reading&quot;, &quot;timestamp&quot;, &quot;position&quot;
+        FROM &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eReading&quot;;
+        
+    lt_values = SELECT &quot;R&quot;.&quot;index&quot;, &quot;D&quot;.&quot;transport&quot;, &quot;S&quot;.&quot;measure&quot;, &quot;value&quot;, &quot;timestamp&quot;, &quot;position&quot;
+        FROM :lt_readings AS &quot;R&quot;
+        INNER JOIN &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eValue&quot; AS &quot;V&quot;
+        ON &quot;R&quot;.&quot;reading&quot; = &quot;V&quot;.&quot;reading&quot;
+        INNER JOIN &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eDevice&quot; AS &quot;D&quot;
+        ON &quot;D&quot;.&quot;id&quot; = &quot;V&quot;.&quot;device&quot;
+        INNER JOIN &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eDeviceSensor&quot; AS &quot;DS&quot;
+        ON &quot;D&quot;.&quot;id&quot; = &quot;DS&quot;.&quot;device&quot; AND &quot;DS&quot;.&quot;number&quot; = &quot;V&quot;.&quot;sensor&quot;
+        INNER JOIN &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eSensorType&quot; AS &quot;S&quot;
+        ON &quot;S&quot;.&quot;id&quot; = &quot;DS&quot;.&quot;sensorType&quot;;
+   
+    var_out = SELECT T1.&quot;transport&quot;, T1.&quot;measure&quot;, T2.&quot;value&quot; - T1.&quot;value&quot; AS &quot;delta&quot;, 
+        T2.&quot;position&quot;.ST_DISTANCE(T1.&quot;position&quot;, 'meter') AS &quot;deltaPosition&quot;,
+        T1.&quot;timestamp&quot; AS &quot;start&quot;, T2.&quot;timestamp&quot; AS &quot;end&quot; FROM :lt_values AS T1
+        INNER JOIN :lt_values AS T2 ON T1.&quot;transport&quot; = T2.&quot;transport&quot; 
+        AND T1.&quot;measure&quot; = T2.&quot;measure&quot; AND T1.&quot;index&quot; =  T2.&quot;index&quot; - 1;
+
+END /********* End Procedure Script ************/</definition>
+    </calculationView>
+  </calculationViews>
+  <logicalModel id="Script_View">
+    <descriptions/>
+    <attributes>
+      <attribute id="transport" order="1">
+        <descriptions/>
+        <keyMapping columnObjectName="Script_View" columnName="transport"/>
+      </attribute>
+      <attribute id="measure" order="2">
+        <descriptions/>
+        <keyMapping columnObjectName="Script_View" columnName="measure"/>
+      </attribute>
+      <attribute id="start" order="5">
+        <descriptions/>
+        <keyMapping columnObjectName="Script_View" columnName="start"/>
+      </attribute>
+      <attribute id="end" order="6">
+        <descriptions/>
+        <keyMapping columnObjectName="Script_View" columnName="end"/>
+      </attribute>
+    </attributes>
+    <calculatedAttributes/>
+    <privateDataFoundation>
+      <tableProxies/>
+      <joins/>
+      <layout>
+        <shapes/>
+      </layout>
+    </privateDataFoundation>
+    <baseMeasures>
+      <measure id="delta" order="3" aggregationType="sum" measureType="simple">
+        <descriptions/>
+        <measureMapping columnObjectName="Script_View" columnName="delta"/>
+      </measure>
+      <measure id="deltaPosition" order="4" aggregationType="sum" measureType="simple">
+        <descriptions/>
+        <measureMapping columnObjectName="Script_View" columnName="deltaPosition"/>
+      </measure>
+    </baseMeasures>
+    <calculatedMeasures/>
+    <restrictedMeasures/>
+    <localDimensions/>
+  </logicalModel>
+  <layout>
+    <shapes>
+      <shape modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
+        <upperLeftCorner x="40" y="85"/>
+      </shape>
+    </shapes>
+  </layout>
+</Calculation:scenario>

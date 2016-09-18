@@ -1,0 +1,62 @@
+-------------------------------------------------------------------------------------------------------------------
+-- @date:           30.12.2015
+-- @component:      Tracking
+-------------------------------------------------------------------------------------------------------------------
+-- @description:
+-- Retrieves the positions / places which have changed between two querries.
+-- @param {timestamp}   iv_previous     - The previous timestamp.
+-- @param {timestamp}   iv_current      - The current timestamp.
+-- @param {table}       et_data         - The result table.
+--  @column {string}    et_data.label   - The "name" of the place.
+--  @column {integer}   et_data.type    - The "type" of the place (0 - inactive loc, 1 - active loc, 2 - transport)
+--  @column {string}    et_data.position    - GeoJSON representation of the position.
+--  @column {string}    et_data.reference   - The id of the corresponding entity (location or reading).
+--  @column {string}    et_data.parent      - The id of the parent entity (null or transport id).
+-------------------------------------------------------------------------------------------------------------------
+PROCEDURE "SPET_DIPLOMA"."spet.diploma.procedures::getPositionsDelta" (  
+        IN  iv_previous TIMESTAMP,
+            iv_current  TIMESTAMP,
+        OUT et_data     TABLE(
+            "label"     NVARCHAR(54), 
+            "type"      INT, 
+            "position"  NVARCHAR(512), 
+            "reference" NVARCHAR(32), 
+            "child"     NVARCHAR(32)
+        )
+    )
+   LANGUAGE SQLSCRIPT
+   SQL SECURITY INVOKER
+   --DEFAULT SCHEMA <default_schema_name>
+   READS SQL DATA AS
+BEGIN 
+
+    -- filter only the relevant readings
+    lt_filtered_p = SELECT "id", "transport", TO_NVARCHAR("position".ST_AsGeoJSON()) AS "position", "timestamp"
+        FROM "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eReading" 
+        WHERE "id" IN (
+            SELECT "id" FROM "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eReading"
+                WHERE "timestamp" < :iv_previous
+    );
+    lt_filtered_c = SELECT "id", "transport", TO_NVARCHAR("position".ST_AsGeoJSON()) AS "position", "timestamp"
+        FROM "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eReading" 
+        WHERE "id" IN (
+            SELECT "id" FROM "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eReading"
+                WHERE "timestamp" < :iv_current
+    );
+    
+    -- obtain the most recent reading for each transport
+    lt_readings = SELECT  t1."transport" AS "transport", t1."position"  AS "position", t1."id" AS "reading" 
+        FROM :lt_filtered_c AS t1 LEFT OUTER JOIN :lt_filtered_c AS t2 ON t1."transport" = t2."transport" 
+        AND (t1."timestamp" < t2."timestamp" OR (t1."timestamp" = t2."timestamp" AND t1."id" < t2."id"))
+        WHERE t2."transport" IS NULL
+    EXCEPT
+        SELECT  t1."transport" AS "transport", t1."position"  AS "position", t1."id" AS "reading" 
+        FROM :lt_filtered_p AS t1 LEFT OUTER JOIN :lt_filtered_p AS t2 ON t1."transport" = t2."transport" 
+        AND (t1."timestamp" < t2."timestamp" OR (t1."timestamp" = t2."timestamp" AND t1."id" < t2."id"))
+        WHERE t2."transport" IS NULL;
+    
+    --combine the data + set the types accordingly
+    et_data =  SELECT "description" AS "label", 2 AS "type", "position", "id" AS "reference", "reading" AS "child" FROM 
+            :lt_readings INNER JOIN "SPET_DIPLOMA"."spet.diploma.data::ctxCore.eTransport" 
+            AS t1 ON :lt_readings."transport" = t1."id";
+END

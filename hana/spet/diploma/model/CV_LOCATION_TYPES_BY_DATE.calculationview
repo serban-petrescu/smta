@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Calculation:scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Calculation="http://www.sap.com/ndb/BiModelCalculation.ecore" schemaVersion="2.3" id="CV_LOCATION_TYPES_BY_DATE" defaultClient="$$client$$" defaultLanguage="$$language$$" hierarchiesSQLEnabled="false" translationRelevant="true" visibility="internal" calculationScenarioType="SCRIPT_BASED" dataCategory="DEFAULT" enforceSqlExecution="false" executionSemantic="UNDEFINED" scriptParametersCaseSensitive="true" applyPrivilegeType="NONE">
+  <descriptions defaultDescription="Gets the location types for a given date"/>
+  <localVariables>
+    <variable id="IV_DATE" parameter="true">
+      <descriptions defaultDescription="IV_DATE"/>
+      <variableProperties datatype="TIMESTAMP" mandatory="true">
+        <valueDomain type="Date"/>
+        <selection multiLine="false" type="SingleValue"/>
+        <defaultRange lowValue="NOW()" lowExpression="true"/>
+      </variableProperties>
+    </variable>
+  </localVariables>
+  <variableMappings/>
+  <dataSources/>
+  <calculationViews>
+    <calculationView xsi:type="Calculation:SqlScriptView" id="Script_View">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="id" datatype="NVARCHAR" length="32"/>
+        <viewAttribute id="active" datatype="TINYINT"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <localVariable>#IV_DATE</localVariable>
+      <definition>/********* Begin Procedure Script ************/ 
+-------------------------------------------------------------------------------------------------------------------
+-- @date:           26.05.2016
+-- @component:      Core
+-------------------------------------------------------------------------------------------------------------------
+-- @description:
+-- Gets the location types for a given date. A location can be either active (has incoming / outgoing transposrts)
+-- or it can be inactive (does not have incoming / outgoing transports).
+-------------------------------------------------------------------------------------------------------------------
+BEGIN
+
+    var_out = SELECT &quot;L&quot;.&quot;id&quot;, CASE WHEN EXISTS (
+            SELECT * FROM &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.vTransportActivePeriods&quot; AS &quot;P&quot; 
+ 	 	    INNER JOIN &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.vLocationTransports&quot; AS &quot;T&quot;
+ 	 	    ON &quot;T&quot;.&quot;location&quot; = &quot;L&quot;.&quot;id&quot; AND  &quot;P&quot;.&quot;id&quot; = &quot;T&quot;.&quot;transport&quot; AND &quot;P&quot;.&quot;startTimestamp&quot; &lt; :iv_date 
+ 	 	    AND ADD_SECONDS(&quot;P&quot;.&quot;endTimestamp&quot;, 3600) &gt; :iv_date
+        ) THEN 1 ELSE 0 END AS &quot;active&quot;
+        FROM &quot;SPET_DIPLOMA&quot;.&quot;spet.diploma.data::ctxCore.eLocation&quot; AS &quot;L&quot;;
+
+END;</definition>
+    </calculationView>
+  </calculationViews>
+  <logicalModel id="Script_View">
+    <descriptions/>
+    <attributes>
+      <attribute id="id" order="1">
+        <keyMapping columnObjectName="Script_View" columnName="id"/>
+      </attribute>
+      <attribute id="active" order="2">
+        <keyMapping columnObjectName="Script_View" columnName="active"/>
+      </attribute>
+    </attributes>
+    <calculatedAttributes/>
+    <privateDataFoundation>
+      <tableProxies/>
+      <joins/>
+      <layout>
+        <shapes/>
+      </layout>
+    </privateDataFoundation>
+    <baseMeasures/>
+    <calculatedMeasures/>
+    <restrictedMeasures/></logicalModel>
+  <layout>
+    <shapes>
+      <shape modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
+        <upperLeftCorner x="40" y="85"/>
+      </shape>
+    </shapes>
+  </layout>
+</Calculation:scenario> 

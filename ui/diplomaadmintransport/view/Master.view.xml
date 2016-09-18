@@ -1,0 +1,85 @@
+<mvc:View
+		controllerName="diploma.admin.transport.controller.Master"
+		xmlns:mvc="sap.ui.core.mvc"
+		xmlns:core="sap.ui.core"
+		xmlns="sap.m"
+		xmlns:semantic="sap.m.semantic"
+		xmlns:u="sap.ui.unified">
+
+	<semantic:MasterPage
+			id="page"
+			title="{masterView>/title}"
+			navButtonPress="onNavBack"
+			showNavButton="true">
+		<semantic:subHeader>
+			<Bar id="headerBar">
+				<contentMiddle>
+					<SearchField
+							id="searchField"
+							showRefreshButton="{= !${device>/support/touch} }"
+							tooltip="{i18n>masterSearchTooltip}"
+							width="100%"
+							search="onSearch">
+					</SearchField>
+				</contentMiddle>
+			</Bar>
+		</semantic:subHeader>
+
+		<semantic:content>
+			<PullToRefresh
+					id="pullToRefresh"
+					visible="{device>/support/touch}"
+					refresh="onRefresh" />
+			<!-- For client side filtering add this to the items attribute:  parameters: {operationMode: 'Client'}}" -->
+			<List	
+					id="list"
+					items="{
+						path: '/Transports',
+						sorter: {
+							path: 'description',
+							descending: false
+							},
+						groupHeaderFactory: '.createGroupHeader'
+					}"
+					busyIndicatorDelay="{masterView>/delay}"
+					noDataText="{masterView>/noDataText}"
+					mode="{= ${device>/system/phone} ? 'None' : 'SingleSelectMaster'}"
+					growing="true"
+					growingScrollToLoad="true"
+					updateFinished="onUpdateFinished"
+					selectionChange="onSelectionChange">
+				<infoToolbar>
+					<Toolbar
+							active="true"
+							id="filterBar"
+							visible="{masterView>/isFilterBarVisible}"
+							press="onOpenViewSettings">
+						<Title
+								id="filterBarLabel"
+								text="{masterView>/filterBarLabel}" />
+					</Toolbar>
+				</infoToolbar>
+				<items>
+					<ObjectListItem
+						type="{= ${device>/system/phone} ? 'Active' : 'Inactive'}"
+						press="onSelectionChange"
+						title="{description}" >
+					    <firstStatus>
+					        <ObjectStatus text="{= 
+				                ${lastLocation} === null ? ${i18n>statusNotStarted} :
+					            ( ${done} === 0 ? ${i18n>statusInProgress} : ${i18n>statusDone} ) }" 
+					            state="{= ${lastLocation} === null ? 'None' :
+					            ( ${done} === 0 ? 'Warning' : 'Success' ) }"/>
+					    </firstStatus>
+					</ObjectListItem>
+				</items>
+			</List>
+			
+		</semantic:content>
+		<semantic:customFooterContent>
+			<Button icon="sap-icon://create" text="{i18n>btnCreate}" visible="{= !${global>/edit} }" press="onCreate"/>
+		</semantic:customFooterContent>
+
+	</semantic:MasterPage>
+
+</mvc:View>

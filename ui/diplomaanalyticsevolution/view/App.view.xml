@@ -1,0 +1,3 @@
+<mvc:View controllerName="diploma.analytics.evolution.controller.App" displayBlock="true" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m">
+	<App busy="{main>/busy}" busyIndicatorDelay="{main>/delay}" id="app"/>
+</mvc:View>

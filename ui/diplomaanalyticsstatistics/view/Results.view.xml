@@ -1,0 +1,26 @@
+<mvc:View controllerName="diploma.analytics.statistics.controller.Results" 
+	xmlns:footerbar="sap.ushell.ui.footerbar"
+	xmlns:mvc="sap.ui.core.mvc" 
+	xmlns:semantic="sap.m.semantic" 
+	xmlns="sap.m" 
+	xmlns:l="sap.ui.layout"
+	xmlns:f="sap.ui.layout.form"
+	xmlns:d="diploma.analytics.statistics.controller"
+	xmlns:sc="sap.suite.ui.commons"
+	xmlns:core="sap.ui.core" 
+	xmlns:viz="sap.viz.ui5.controls">
+	<semantic:FullscreenPage id="page" navButtonPress="onNavBack" showNavButton="true" title="{i18n>resultsViewTitle}">
+		<semantic:content>
+			<sc:ChartContainer showFullScreen="true" showPersonalization="false"
+				autoAdjustHeight="true" showLegend="true" showLegendButton="true" id="chcMain">
+				<sc:content>
+					<sc:ChartContainerContent icon="sap-icon://line-chart"  title="{i18n>lineChart}" > 
+						<sc:content>
+							<viz:VizFrame id="lineChart" height="100%" width="100%" uiConfig="{applicationSet:'fiori'}"/>
+						</sc:content>
+					</sc:ChartContainerContent>
+				</sc:content>	
+			</sc:ChartContainer>
+		</semantic:content>
+	</semantic:FullscreenPage>
+</mvc:View>

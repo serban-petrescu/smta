@@ -1,0 +1,49 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:form="sap.ui.layout.form"
+	xmlns:core="sap.ui.core">
+    <form:SimpleForm layout="ResponsiveGridLayout" maxContainerCols="2"
+		labelSpanL="3" labelSpanM="3" emptySpanL="2" emptySpanM="2" 
+		columnsL="1" columnsM="1" visible="{= !${global>/edit} }">
+	    <form:toolbar>
+	        <Toolbar>
+	            <Title text="{i18n>transHeader}" />
+	            <ToolbarSpacer />
+    			<Button visible="{= ${global>/edit} &amp;&amp; !${global>/isNew} }" 
+    			    icon="sap-icon://undo" 
+    			    tooltip="{i18n>undoButtonTooltip}" 
+    			    press="onUndo" />
+    			<Button visible="{= ${global>/edit} &amp;&amp; !${global>/isNew} }" 
+    			    icon="sap-icon://save" 
+    			    tooltip="{i18n>saveButtonTooltip}" 
+    			    press="onUpdateCommit" />
+	        </Toolbar>
+	    </form:toolbar>
+	    
+		<Label text="{i18n>transDesc}"/>
+		<Text text="{description}"/>
+		    
+		<Label text="{i18n>transWhen}" />
+		<Text text="{
+		        path: 'tWhen', 
+		        type: 'sap.ui.model.type.DateTime',
+		        format: {style: 'short'}
+		    }"/>
+		    
+		<Label text="{i18n>transRoute}" />
+		<Text text="{Route/name}"/>
+		    
+		<Label text="{i18n>returning}" />
+		<Text text="{= ${returning} === 0 ? ${i18n>booleanNo} : ${i18n>booleanYes} }" />
+		    
+		<Label text="{i18n>transSchedule}"/>
+		<Text text="{Schedule/name}"/>
+		    
+		<Label text="{i18n>statusLabel}" />
+        <ObjectStatus text="{= 
+            ${lastLocation} === null ? ${i18n>statusNotStarted} :
+            ( ${done} === 0 ? ${i18n>statusInProgress} : ${i18n>statusDone} ) }" 
+            state="{= ${lastLocation} === null ? 'None' :
+            ( ${done} === 0 ? 'Warning' : 'Success' ) }"/>
+	</form:SimpleForm>
+</core:FragmentDefinition>
