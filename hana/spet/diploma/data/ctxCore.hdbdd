@@ -223,6 +223,33 @@ context ctxCore {
             toRole      : Association[ 1 ] to eRole on toRole.id = role;
     };
     
+    @Catalog.tableType: #COLUMN
+    entity eTrace { 
+        key id          : atyUUID;
+            transport   : atyUUID;
+            name        : String(64);
+            icon        : String(64);
+            interval    : Integer;
+            mapZoom     : Integer;
+            mapType     : String(32);
+            mapCenterLat: Double;
+            mapCenterLng: Double;
+            priority    : Integer; 
+            showDetails : hana.TINYINT;
+            toIcon      : String(64);
+            fromIcon    : String(64);
+            toTransport : Association[ 1 ] to eTransport on toTransport.id = transport;
+    };
+    
+    entity eTraceEvent {
+        key id          : atyUUID;
+            text        : String(128);
+            trace       : atyUUID;
+            reading     : atyUUID;
+            toTrace     : Association[ 1 ] to eTrace on toTrace.id = trace;
+            toReading   : Association[ 1 ] to eReading on toReading.id = reading;
+    };
+	
     view vTransportActivePeriods as SELECT from eTransport{
     	id,
     	MIN(eTransport.toReadings.timestamp) as startTimestamp,

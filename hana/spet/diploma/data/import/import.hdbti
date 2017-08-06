@@ -134,5 +134,13 @@ import = [
                 header = false;
                 delimField = ",";
                 delimEnclosing="\"";
+            },
+            {
+                cdstable  = "spet.diploma.data::ctxCore.eTrace";
+                schema = "SPET_DIPLOMA";
+                file = "spet.diploma.data.import:eTrace.csv";
+                header = true;
+                delimField = ";";
+                delimEnclosing="\"";
             }
          ];

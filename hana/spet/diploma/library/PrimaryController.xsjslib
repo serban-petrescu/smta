@@ -13,6 +13,7 @@ function define(fnDefine) {
 	            fnGetSensors,
 	            fnProcessPositionData,
 	            fnSendEmail,
+	            fnInsertEvent,
 	            fnSendPostToMailService,
 	            fnFormatDate,
 	            fnGetSystemFields,
@@ -543,8 +544,34 @@ function define(fnDefine) {
                 this.oConnection.commit();
                 
                 if (aLimitViolations.length > 0) {
-                    fnSendEmail(oIds, aLimitViolations);
+                    fnInsertEvent(oIds, aLimitViolations);
                     this.oConnection.commit();
+                }
+            };
+            
+            /**
+             * Helper method for inserting an event.
+             * @param   {object}    oIds                The ID object (holds the transport, reading ids).
+             * @param   {object[]}  aLimitViolations    An array containing violated limits.
+             * @returns {void}
+             */
+            fnInsertEvent = function(oIds, aLimitViolations) {
+                var aTraces = oDB.querf('SELECT "id" FROM "{0}"."{1}" WHERE "transport" = ?', 
+                    [oConst.Schemas.Main, oConst.Tables.Trace], [oIds.transport]),
+                    i,
+                    aLimitUpdates = [];
+                    
+                for (i = 0; i < aTraces.length; ++i) {
+                    oDB.updatf('INSERT INTO "{0}"."{1}" VALUES(SYSUUID, ?, ?, ?)', 
+                        [oConst.Schemas.Main, oConst.Tables.TraceEvent], ['', aTraces[i].id, oIds.reading]);
+                }
+                
+                for (i = 0; i < aLimitViolations.length; ++i) {
+                    aLimitUpdates.push([oIds.transport, aLimitViolations[i].measure]);
+                }
+                if (aLimitUpdates.length) {
+                    oDB.updatf('UPDATE "{0}"."{1}" SET "notified" = 1 WHERE "transport" = ? AND "measure" = ?',
+                        [oConst.Schemas.Main, oConst.Tables.Limit], [aLimitUpdates]);
                 }
             };
             

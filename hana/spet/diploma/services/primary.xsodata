@@ -147,6 +147,14 @@ service namespace "spet.diploma.services" {
             "TransportInvolvements" as "Transport",
             "RoleInvolvements"      as "Role"
         ); 
+        
+    "spet.diploma.data::ctxCore.eTrace" as "Traces"
+        navigates(
+            "TransportTraces"           as "Transport"
+        )
+        delete forbidden   
+        create forbidden  
+        update forbidden; 
      
     "spet.diploma.model::CV_EXPANDED_TRANSPORT" as "ExpandedTransports"
         key("id") 
@@ -300,4 +308,6 @@ service namespace "spet.diploma.services" {
     association "TransportToSchedule" with referential constraint principal "Schedules"("id") multiplicity "1"
         dependent "Transports"("schedule") multiplicity "*";
      
+    association "TransportTraces" with referential constraint principal "Transports"("id") multiplicity "1"
+        dependent "Traces"("transport") multiplicity "*";
 }

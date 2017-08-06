@@ -36,11 +36,14 @@ var Tables = {
     Person:         "spet.diploma.data::ctxCore.ePerson",
     Involvement:    "spet.diploma.data::ctxCore.eInvolvement",
     Role:           "spet.diploma.data::ctxCore.eRole",
-    Organization:   "spet.diploma.data::ctxCore.eOrganization"
+    Organization:   "spet.diploma.data::ctxCore.eOrganization",
+    Trace:          "spet.diploma.data::ctxCore.eTrace",
+    TraceEvent:     "spet.diploma.data::ctxCore.eTraceEvent"
 };
 
 var Views = {
     MeasuredValue:      "spet.diploma.data::ctxCore.vMeasuredValues",
+    MeasuredReading:    "spet.diploma.data::ctxCore.vMeasuredReadings",
     DailyViolations:    "spet.diploma.data::ctxCore.vLimitViolationsDaily",
     MonthlyViolations:  "spet.diploma.data::ctxCore.vLimitViolationsMonthly",
     DailyValues:        "spet.diploma.data::ctxCore.vValuesDaily",

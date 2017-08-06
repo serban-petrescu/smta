@@ -1,0 +1,12 @@
+description = "Diploma: Email REST Service";
+host = "local-p1940442392trial.dispatcher.hanatrial.ondemand.com";
+port = 443;
+pathPrefix = "/hello";
+proxyType = http;
+proxyHost = "proxy-trial";
+proxyPort = 8080;
+authType = none;
+useSSL = true;
+timeout = 0;
+sslHostCheck = true;
+sslAuth = client;
