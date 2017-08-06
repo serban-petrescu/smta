@@ -1,4 +1,0 @@
-<mvc:View controllerName="diploma.admin.sensor.controller.BaseController" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m">
-	<MessagePage description="" icon="{sap-icon://product}" id="page" navButtonPress="onNavBack" showNavButton="{device>/system/phone}"
-		text="{i18n>noObjectFoundText}" title="{i18n>detailTitle}"></MessagePage>
-</mvc:View>

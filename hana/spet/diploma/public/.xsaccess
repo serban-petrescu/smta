@@ -1,7 +1,0 @@
-{
-    "exposed": true,
-    "authentication": null,
-    "force_ssl": false,
-    "prevent_xsrf": false,
-    "anonymous_connection": "spet.diploma.public::anonymous"
-} 

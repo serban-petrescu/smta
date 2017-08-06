@@ -1,6 +1,0 @@
-"566D6CFFB5685629E10000000A4E731A","Speedometer","diosajdspaio","566D6CFDB5685629E10000000A4E731A",,0
-"56FC2C4130037203E10000000A4E731A","Deviation Calculator","Computes the deviation from the route.","56FC2C4230037203E10000000A4E731A","$S(RouteDeviation)",1
-"566D6D8AB5685629E10000000A4E731A","Light Intensity Sensor","diajsodjad","566D6D89B5685629E10000000A4E731A",,0
-"56FC2D7330037203E10000000A4E731A","Android Pressure Sensor","Pressure sensor typically found in android (measures in hPa)","56FC2D7230037203E10000000A4E731A","# * 100",0
-"56FC2D7530037203E10000000A4E731A","Illuminance Sensor","Luminescence sensor (typically found in Android phones)","56FC2D7430037203E10000000A4E731A",,0
-"56FC2DDE30037203E10000000A4E731A","Schedule Offset Calculator","Computes the time difference to the schedule","56FC2DDD30037203E10000000A4E731A","$S(ScheduleDeviation)",1
