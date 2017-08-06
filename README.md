@@ -1,5 +1,6 @@
-# Serban's Diploma (public)
+# Shipment tracking, management and analytics
 My bachelor degree project source files.
+Find out more by watching this [presentation](https://serban-petrescu.github.io/smta/docs/presentation/#/).
 
 ## Overview
 ### Brief
