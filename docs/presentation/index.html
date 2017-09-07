@@ -45,34 +45,21 @@
 					</section>
 					<section data-autoslide="7500">
 						<p>
-							Transport companies sign <strong>insurance policies</strong> with insurance companies 
-							to cover the risk that goods are damaged during transportation.
+							Transport companies have to pay a <strong>periodical amount</strong> to isurers. 
+							This amount is determined based on the risk.
 						</p>
+					</section>
+					<section data-autoslide="7500">
 						<p>
-							These insurance policies generally enforce certain <strong>conditions</strong> 
+							Shipment insurance policies enforce certain <strong>conditions</strong> 
 							(route, schedule, etc.).
 						</p>
 					</section>
 					<section data-autoslide="10000">
 						<p>
-							When the goods are damaged, the transport company opens up a <strong>claim</strong>.
-						</p>
-						<p>
-							The insurance company then checks if the conditions of the policy were respected.
+							When the goods are damaged, the insurance company must check if these conditions were respected.
 						</p>
 						<img src="assets/background-claim.PNG" />
-					</section>
-					<section data-autoslide="10000">
-						<p>
-							There are <strong>several gaps</strong> in the this process:
-						</p>
-						<p>
-							It is very difficult for the insurance company to determine if the policy conditions were fulfilled.
-						</p>
-						<p>
-							The premiums do not always accurately reflect the risks of a policy. 
-							Mostly because of the <strong>lack of first-hand data</strong>.
-						</p>
 					</section>
 				</section>
 				<section>
@@ -81,22 +68,28 @@
 					</section>
 					<section data-autoslide="5000">
 						<p>
+							Help isurers check for insurance condition breaches and calculate payment amounts.
+						</p>
+					</section>
+					<section data-autoslide="5000">
+						<p>
 							Create a <strong>platform</strong> which allows users to manage shipments, tracking devices and sensors.
+						</p>
+					</section>
+					<section data-autoslide="5000">
+						<p>
+							Create <strong>tracking devices</strong> for collecting the data from transports.
+						</p>
+					</section>
+					<section data-autoslide="10000">
+						<p>
+							Enable <strong>real-time tracking</strong> and <strong>notification</strong> capabilities.
 						</p>
 						<img src="assets/goals-platform.PNG" />
 					</section>
 					<section data-autoslide="5000">
 						<p>
-							Create tracking devices (prototypes) for collecting the data from transports.
-						</p>
-						<p>
-							Enable <strong>real-time tracking</strong> and notification capabilities.
-						</p>
-					</section>
-					<section data-autoslide="5000">
-						<p>
-							Use the data collected to expose statistics and analytic scenarios 
-							to aid insurance companies in determining the premium ammounts.
+							Use the data collected to expose <strong>statistics</strong> and <strong>analytic scenarios</strong>.
 						</p>
 					</section>
 				</section>
@@ -105,118 +98,123 @@
 						<h1>SMTA</h1><h1>Overview</h1>
 					</section>
 					<section data-autoslide="7500">
-						<h3>Technologies</h3>
+						<img src="assets/high-level-overview.PNG" />
+					</section>
+					<section data-autoslide="5000">
 						<p>
 							Two device prototypes were made: an <strong>Arduino</strong> board 
 							and an <strong>Android</strong> application.
 						</p>
+					</section>
+					<section data-autoslide="5000">
 						<p>
-							The platform for collecting data, monitoring, tracking, etc. was build 
+							The platform for collecting data, monitoring, tracking, etc. was built 
 							with <strong>SAP Cloud Platform</strong>.
 						</p>
+					</section>
+					<section data-autoslide="4000">
 						<p>
 							All user interfaces were created with <strong>SAP UI5</strong>. 
 						</p>
-					</section>
-					<section data-autoslide="5000">
-						<img src="assets/high-level-overview.PNG" />
-					</section>
-					<section data-autoslide="10000">
-						<h3>HANA</h3>
-						<p>A HANA (DB, XSC) sits at the center of the solution.</p>
-						<p>
-							Conceptually, it is split into three components: Administration, Tracking, Analytics.
-						</p>
-						<p>
-							The RESTful services are exposed via two APIs:
-							<ul>
-								<li><strong>Primary</strong> API (for data collection / mgmt.)</li>
-								<li><strong>Secondary</strong> API (for analytic scenarios)</li>
-							</ul>
-						</p>
-					</section>
-					<section data-autoslide="7500">
-						<img src="assets/hana-overview.PNG" />
 					</section>
 				</section>
 				<section>
 					<section data-autoslide="2500">
 						<h1>SMTA</h1><h1>Web Apps</h1>
 					</section>
-					<section>
+					<section data-autoslide="5000">
 						<p>
 							All the cloud web apps are deployed to the <strong>Fiori Launchpad</strong>.
 						</p>
 						<p>
-							They are grouped based on the underlying HANA component (Administration, Tracking, Analytics).
+							They are grouped based on usage: Administration, Tracking, Analytics.
 						</p>
 					</section>
-					<section data-autoslide="4000">
+					<section data-autoslide="10000">
 						<img src="assets/launchpad.PNG" />
 					</section>
-					<section  data-autoslide="10000">
+					<section data-autoslide="7500">
 						<h3>Administration Apps</h3>
 						<p>
 							Responsible for managing the transports, devices, sensors, routes, schedules, organizations and people.
 						</p>
-						<p>
-							We can define <strong>conversion formulas</strong> and <strong>virtual sensors</strong>.
-						</p>
-						<p>
-							For each transport, <strong>limits</strong> can be defined. When a limit is breached, a notification email is sent.
-						</p>
 					</section>
-					<section data-autoslide="3000">
-						<img src="assets/administration-sensors.PNG" />
-					</section>
-					<section data-autoslide="3000">
+					<section data-autoslide="5000">
 						<img src="assets/administration-devices.PNG" />
 					</section>
-					<section data-autoslide="3000">
+					<section data-autoslide="5000">
 						<img src="assets/administration-routes.PNG" />
 					</section>
-					<section data-autoslide="3000">
+					<section data-autoslide="10000">
+						<img src="assets/administration-sensors.PNG" />
+						<p>
+							<small>
+								We can define <strong>conversions</strong> and <strong>virtual sensors</strong>.
+							</small>
+						</p>
+					</section>
+					<section data-autoslide="10000">
 						<img src="assets/administration-transports.PNG" />
-					</section>
-					<section data-autoslide="7500">
-						<h3>Tracking Apps</h3>
 						<p>
-							The <strong>overview</strong> app shows in real time the evolution of all active transports and
-							allows scrolling through time to see the previous state of the transports.
-						</p>
-						<p>
-							The <strong>trace</strong> can be used to see an animation of the transport evolution.
+							<small>
+								<strong>Limits</strong> can be defined (when breached, an email is sent).
+							</small>
 						</p>
 					</section>
-					<section data-autoslide="3000">
+					<section data-autoslide="10000">
 						<img src="assets/tracking-overview.PNG" />
+						<p>
+							<small>
+								The <strong>overview</strong> app shows in real time all the active transports and
+								allows scrolling back in time.
+							</small>
+						</p>
 					</section>
-					<section data-autoslide="3000">
-						<img src="assets/tracking-trace.PNG" />
+					<section data-autoslide="10000">
+						<img src="assets/tracking-trace.gif" />
+						<p>
+							<small>
+								The <strong>trace</strong> can be used to see an animation of the transport's evolution.
+							</small>
+						</p>
 					</section>
-					<section data-autoslide="7500">
+					<section data-autoslide="4000">
 						<h3>Analytics Apps</h3>
 						<p>
-							Cover several use cases:
-							<ul>
-								<li>Viewing the evolution of a single transport.</li>
-								<li>Comparing several transports against each other.</li>
-								<li>Generating system-wide statistics.</li>
-								<li>Performing simple forecasts (SAP HANA PAL).</li>
-							</ul>
+							Cover several analytical scenarios.
 						</p>
 					</section>
-					<section data-autoslide="3000">
+					<section data-autoslide="10000">
 						<img src="assets/analytics-direct.PNG" />
+						<p>
+							<small>
+								Viewing the evolution of a single transport.
+							</small>
+						</p>
 					</section>
-					<section data-autoslide="3000">
+					<section data-autoslide="10000">
 						<img src="assets/analytics-compare.PNG" />
+						<p>
+							<small>
+								Comparing several transports against each other.
+							</small>
+						</p>
 					</section>
-					<section data-autoslide="3000">
+					<section data-autoslide="10000">
 						<img src="assets/analytics-stats.PNG" />
+						<p>
+							<small>
+								Generating system-wide statistics.
+							</small>
+						</p>
 					</section>
-					<section data-autoslide="3000">
+					<section data-autoslide="10000">
 						<img src="assets/analytics-forecast.PNG" />
+						<p>
+							<small>
+								Performing simple forecasts (SAP HANA PAL).
+							</small>
+						</p>
 					</section>
 				</section>
 				<section>
@@ -225,25 +223,21 @@
 					</section>
 					<section data-autoslide="7500">
 						<p>
-							Is implemented as a REST-based <strong>micro-service</strong>.
-						</p>
-						<p>
-							Exposes a configurable list of email addresses.
-						</p>
-						<p>
-							A <strong>custom grammar</strong> was created to allow users to define custom 
-							HTML-based email templates. 
+							Is implemented as a REST-based <strong>micro-service</strong> that exposes a configurable list of email addresses.
 						</p>
 					</section>
 					<section data-autoslide="5000">
 						<h3>Overview</h3>
 						<img src="assets/mail-design.PNG" />
 					</section>
-					<section data-autoslide="5000">
-						<h3>Custom Grammar</h3>
+					<section data-autoslide="7500">
+						<p>
+							A <strong>custom grammar</strong> was created to allow users to define custom 
+							HTML-based email templates. 
+						</p>
 						<img src="assets/mail-grammar.PNG" />
 					</section>
-					<section data-autoslide="5000">
+					<section data-autoslide="7500">
 						<h3>Email Sample</h3>
 						<img src="assets/mail-sample.PNG" />
 					</section>
@@ -252,33 +246,30 @@
 					<section data-autoslide="2500">
 						<h1>SMTA</h1><h1>Devices</h1>
 					</section>
-					<section data-autoslide="7500">
+					<section data-autoslide="5000">
 						<h3>Android App</h3>
 						<p>
 							Uses the <strong>built-in</strong> GPS and sensors.
 						</p>
 						<p>
-							Can either store the collected data locally and upload it all at once or send it to the cloud as soon as it is read.
+							Works both online and offline.
 						</p>
 					</section>
-					<section data-autoslide="5000">
+					<section data-autoslide="10000">
 						<img src="assets/android.PNG" />
 					</section>
-					<section data-autoslide="7500">
+					<section data-autoslide="15000">
 						<h3>Arduino Board</h3>
 						<p>
-							Connected to <strong>serially-commanded</strong> GPS and Bluetooth modules.
+							Connected to GPS and Bluetooth modules.
 						</p>
 						<p>
-							It communicates with a Bluetooth enabled device (a laptop) which forwards data 
-							to the cloud (with the help of a <strong>Proxy C# application</strong>).
+							It communicates with a Bluetooth enabled device which forwards data to the cloud.
 						</p>
-					</section>
-					<section data-autoslide="5000">
 						<img src="assets/arduino.PNG" />
 					</section>
 				</section>
-				<section>
+				<section data-autoslide="10000">
 					<h3>Fork me on GitHub</h3>
 					<a href="https://github.com/serban-petrescu/smta">https://github.com/serban-petrescu/smta</a>
 				</section>
