@@ -9,7 +9,7 @@
 	<packaging>war</packaging>
 
 	<properties>
-		<jackson.version>2.6.4</jackson.version>
+		<jackson.version>2.8.11.1</jackson.version>
 	</properties>
 
 
